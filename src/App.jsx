@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef, createContext, useContext } from "react";
 import { createPortal } from "react-dom";
 import * as RC from "recharts";
+import { ACTIVE_DEPARTMENT_IDS, DEPARTMENT_GROUPS } from "./departments";
 
 /* =========================================================================
    Financial & Budgeting Copilot (AI_SS_02) — interactive demo.
@@ -1208,37 +1209,18 @@ function TopBar() {
     </div>
   </div>);
 }
-// Left menu = BRD organizational tree (General Directorates → sub-departments), matching the reference.
-const DEPARTMENTS = [
-  { key: "g02", name: { en: "General Directorate of Planning and Financial Performance", ar: "الإدارة العامة للتخطيط والأداء المالي", zh: "规划与财务绩效总局" }, subs: [
-    { id: "fpa", route: "fpawork", name: { en: "Financial Performance Analysis Department", ar: "إدارة تحليل الأداء المالي", zh: "财务绩效分析部" } },
-    { id: "plan", route: "plnwork", name: { en: "Planning Department", ar: "إدارة التخطيط", zh: "规划部" } } ] },
-  { key: "g03", name: { en: "General Budget Department", ar: "الإدارة العامة للميزانية", zh: "预算总局" }, subs: [
-    { id: "budexec", route: "buwork", name: { en: "Budget Execution Department", ar: "إدارة تنفيذ الميزانية", zh: "预算执行部" } } ] },
-  { key: "g04", name: { en: "General Administration of Affairs Finance", ar: "الإدارة العامة للشؤون المالية", zh: "财务事务总局" }, subs: [
-    { id: "entitle", route: "entwork", name: { en: "Financial Entitlements Department", ar: "إدارة الاستحقاقات المالية", zh: "财务权益部" } },
-    { id: "audit", route: "audwork", name: { en: "Audit Department", ar: "إدارة التدقيق", zh: "审计部" } } ] },
-  { key: "g05", name: { en: "General Directorate of Financial Reporting", ar: "الإدارة العامة للتقارير المالية", zh: "财务报告总局" }, subs: [
-    { id: "frep", route: "frepwork", name: { en: "Financial Reporting Department", ar: "إدارة التقارير المالية", zh: "财务报告部" } },
-    { id: "comp", route: "compwork", name: { en: "Compliance Department", ar: "إدارة الامتثال", zh: "合规部" } },
-    { id: "cost", route: "costwork", name: { en: "Cost Management Department", ar: "إدارة التكاليف", zh: "成本管理部" } },
-    { id: "acct", route: "acctwork", name: { en: "Accounting Department", ar: "إدارة المحاسبة", zh: "会计部" } } ] },
-  { key: "g06", name: { en: "General Directorate of Revenues and Assets", ar: "الإدارة العامة للإيرادات والأصول", zh: "收入与资产总局" }, subs: [
-    { id: "revcol", route: "rcwork", name: { en: "Revenue Collection Department", ar: "إدارة التحصيل", zh: "收入征收部" } },
-    { id: "assets", route: "aswork", name: { en: "Assets Department", ar: "إدارة الأصول", zh: "资产部" } } ] },
-];
 function Sidebar() {
   const { t, tr, route, setRoute, deptSub, setDeptSub, setBackRoute } = useStore();
   const [openG, setOpenG] = useState("g06");
   return (<div className="sidebar">
     <div className="sidebar-sub">{t("appName")}</div>
-    {DEPARTMENTS.map(g => {
+    {DEPARTMENT_GROUPS.map(g => {
       const open = openG === g.key;
       return (<div className="dept" key={g.key}>
         <div className={"dept-head" + (open ? " open" : "")} onClick={() => setOpenG(open ? "" : g.key)}>
           <span style={{ flex: 1 }}>{tr(g.name)}</span><span className="chev">{open ? "▾" : "▸"}</span>
         </div>
-        {open && <div className="dept-subs">{g.subs.map(s => { const on = s.id === "fpa" || s.id === "revcol" || s.id === "budexec" || s.id === "assets" || s.id === "audit" || s.id === "frep" || s.id === "comp" || s.id === "cost" || s.id === "plan" || s.id === "entitle" || s.id === "acct";
+        {open && <div className="dept-subs">{g.subs.map(s => { const on = ACTIVE_DEPARTMENT_IDS.has(s.id);
           return <div key={s.id} className={"dept-sub" + (deptSub === s.id ? " active" : "") + (on ? "" : " locked")} onClick={on ? () => { setBackRoute(null); setDeptSub(s.id); setRoute(s.route); } : undefined}>{tr(s.name)}{on ? null : <span className="lockic">🔒</span>}</div>;
         })}</div>}
       </div>);
