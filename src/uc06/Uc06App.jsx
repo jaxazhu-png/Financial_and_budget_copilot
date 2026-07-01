@@ -4,6 +4,7 @@ import * as echarts from 'echarts';
 import * as XLSX from 'xlsx';
 import pptxgen from 'pptxgenjs';
 import html2canvas from 'html2canvas';
+import { getChartNumber } from '../data/presentationConfig.js';
 
 if (typeof window !== 'undefined') {
     window.echarts = echarts;
@@ -264,7 +265,7 @@ const G02_SANKEY_NODES = {
     },
 };
 
-const G02_SANKEY_LINKS = [
+const G02_SANKEY_LINKS_DEFAULT = [
     ['chapter1', 'ministryCentral', 10.0],
     ['chapter1', 'riyadhAmana', 5.0],
     ['chapter1', 'easternAmana', 4.0],
@@ -290,6 +291,11 @@ const G02_SANKEY_LINKS = [
     ['otherAmanas', 'stormwater', 40.0],
     ['otherAmanas', 'otherServices', 35.0],
 ];
+const G02_SANKEY_LINKS = G02_SANKEY_LINKS_DEFAULT.map(([source, target, value]) => [
+    source,
+    target,
+    getChartNumber('perf', 'budget_door_flow', `${source}->${target}`, 'flow', value),
+]);
 
 const DEPARTMENTS_TREE = [
     {

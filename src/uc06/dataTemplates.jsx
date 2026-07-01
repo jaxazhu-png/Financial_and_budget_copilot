@@ -1,3 +1,5 @@
+import { applyDashboardPresentationConfig } from '../data/presentationConfig.js';
+
 const REPORT_LABELS = {
     Executive: { en: 'Executive Report', ar: 'التقرير التنفيذي' },
     Disbursement: { en: 'Disbursement Report', ar: 'تقرير الصرف' },
@@ -1817,7 +1819,7 @@ export function getDashboardData(filters) {
     const varianceRows = buildVarianceRows(doors);
     const revenueOverview = groupContext === 'g06' ? buildRevenueOverview(metrics, lang) : [];
 
-    return {
+    const dashboard = {
         groupMeta,
         scopeLabel: buildScopeLabel(filters, lang),
         managementReadout: groupContext === 'g06'
@@ -1869,6 +1871,8 @@ export function getDashboardData(filters) {
             revenueSources,
         },
     };
+
+    return applyDashboardPresentationConfig(groupContext, dashboard);
 }
 
 export function getReportOutput({ reportType, dashboardData, lang }) {

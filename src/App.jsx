@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef, createContext, useContext 
 import { createPortal } from "react-dom";
 import * as RC from "recharts";
 import { ACTIVE_DEPARTMENT_IDS, DEPARTMENT_GROUPS } from "./departments";
+import { applyKpiSlides, getChartDisplay, getChartNumber, getKpiDisplay, keyify } from "./data/presentationConfig.js";
 
 /* =========================================================================
    Financial & Budgeting Copilot (AI_SS_02) — interactive demo.
@@ -308,6 +309,20 @@ function arHeat(v) { if (v <= 0.3) return ["#f7faf8", "#5c6b63"]; if (v <= 1) re
    G-06 — Revenues & Assets storyline (function-labeled; no UC codes shown)
    ========================================================================= */
 const REV_TOTALS = (function () { var b = 0, c = 0; REVENUE_SOURCES.forEach(function (s) { b += s.net; c += s.collected; }); return { billed: b, collected: c, rate: +(c / b * 100).toFixed(1), excl: 212 }; })();
+function configuredRevenueSources() {
+  return REVENUE_SOURCES.map((source) => ({
+    ...source,
+    net: getChartNumber("revassets", "revenue_sources", source.key, "net_invoiced", source.net),
+    collected: getChartNumber("revassets", "revenue_sources", source.key, "collected", source.collected),
+    weight: getChartNumber("revassets", "revenue_sources", source.key, "weight", source.weight),
+  }));
+}
+function configuredRevenueTotals() {
+  const sources = configuredRevenueSources();
+  const billed = sources.reduce((sum, source) => sum + source.net, 0);
+  const collected = sources.reduce((sum, source) => sum + source.collected, 0);
+  return { billed, collected, rate: billed ? +(collected / billed * 100).toFixed(1) : 0, excl: REV_TOTALS.excl };
+}
 const REV_DEVIATIONS = [
   { a: { en: "Asir Amana · collection gap", ar: "أمانة عسير · فجوة تحصيل", zh: "阿西尔阿玛纳 · 征收缺口" }, v: "14%", f: "red" },
   { a: { en: "Penalties feed delay", ar: "تأخر تغذية الغرامات", zh: "罚款数据延迟" }, v: "> SLA", f: "amber" },
@@ -1068,10 +1083,12 @@ const ArrowIcon = (<svg className="ic-svg ic-arrow" viewBox="0 0 24 24" fill="no
 const UserIcon = (<svg className="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" /></svg>);
 const NEXT_LANG_LABEL = { ar: "العربية", en: "English", zh: "中文" };
 
-function KPI({ label, value, sub, tone }) {
+function KPI({ label, value, sub, tone, metricKey, configRoute }) {
+  const { route } = useStore();
+  const resolvedValue = metricKey ? getKpiDisplay(configRoute || route, metricKey, value) : value;
   const color = tone === "good" ? "var(--green)" : tone === "bad" ? "var(--danger)" : tone === "warn" ? "var(--amber)" : "var(--ink)";
   return (<div className={"kpi" + (tone ? " kpi-" + tone : "")}><div className="label">{label}</div>
-    <div className="value" style={{ color }}>{value}</div>{sub && <div className="sub">{sub}</div>}</div>);
+    <div className="value" style={{ color }}>{resolvedValue}</div>{sub && <div className="sub">{sub}</div>}</div>);
 }
 function Section({ title, sub, right, children, className }) {
   return (<div className={"card pad acc" + (className ? " " + className : "")} style={{ marginBottom: 16 }}>
@@ -1248,9 +1265,14 @@ function SourceStrip() {
     return (<div key={s.key} className="s" title={s.sla + " · " + s.fresh + "%"}><div className="sk">{t("src_" + s.key)}</div><div className="sd" style={{ background: col }} /></div>); })}</div>);
 }
 function UtilChart() {
+  const { route } = useStore();
   const C = RC; if (!C || !C.ResponsiveContainer) return null;
+  const chartData = UTIL_BY_AMANA.map((item) => ({
+    ...item,
+    v: getChartNumber(route, "util_by_amana", item.k, "utilization", item.v),
+  }));
   return (<div style={{ width: "100%", height: 220 }}><C.ResponsiveContainer>
-    <C.BarChart data={UTIL_BY_AMANA} margin={{ top: 6, right: 10, left: -16, bottom: 0 }}>
+    <C.BarChart data={chartData} margin={{ top: 6, right: 10, left: -16, bottom: 0 }}>
       <C.CartesianGrid strokeDasharray="3 3" stroke="#eef2ef" vertical={false} />
       <C.XAxis dataKey="k" tick={{ fontSize: 11 }} /><C.YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
       <C.Tooltip formatter={(v) => v + "%"} contentStyle={{ borderRadius: 8, fontSize: 12, border: "1px solid #e2eae5" }} />
@@ -1273,9 +1295,9 @@ function Hub() {
     <div className="shock"><span className="si">⚡</span><span className="stxt">{t("shock_banner")}</span>
       <button className="btn" onClick={() => askOrchestrator("q_overrun")}>✦ {t("runAssessment")}</button><span className="spill">{t("brief_urgent")}</span></div>
     <div className="cols-4" style={{ marginBottom: 16 }}>
-      <KPI label={t("k_fiscal")} value="SAR 4.82B" tone="good" />
-      <KPI label={t("k_alerts")} value={open.length} tone={open.length ? "bad" : "good"} />
-      <KPI label={t("k_util")} value="71.4%" tone="warn" /><KPI label={t("k_close")} value="92%" tone="good" />
+      <KPI label={t("k_fiscal")} value="SAR 4.82B" tone="good" metricKey="available_fiscal_space" />
+      <KPI label={t("k_alerts")} value={open.length} tone={open.length ? "bad" : "good"} metricKey="open_alerts" />
+      <KPI label={t("k_util")} value="71.4%" tone="warn" metricKey="overall_utilization" /><KPI label={t("k_close")} value="92%" tone="good" metricKey="closure_rate" />
     </div>
     <Section title={t("engines_title")}><EngineGrid /></Section>
     <Section title={t("sources_title")} right={<span className="chip">● 13 {t("live")}</span>}><SourceStrip /></Section>
@@ -1383,13 +1405,13 @@ function Monitoring() {
 /* =========================================================================
    Storyline
    ========================================================================= */
-function StoryChain({ nodes, ran, runningIdx, view, setView }) {
+function StoryChain({ nodes, storyKey, ran, runningIdx, view, setView }) {
   const { t, tr } = useStore();
   return (<div className="chain">{nodes.map((nd, i) => { const s = i === runningIdx ? "run" : i < ran ? "done" : "idle"; const col = s === "done" ? "var(--green)" : s === "run" ? "#6d5ae6" : null;
     return (<div key={i} className={"node " + (s === "run" ? "run" : s === "done" ? "done" : "")} onClick={() => i < ran && setView(i)} style={{ cursor: i < ran ? "pointer" : "default", outline: i === view ? "2px solid var(--green-100)" : "none" }}>
       <span className="node-dot" style={{ background: col || "#cbd5d0" }} />
       <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: col || "inherit" }}>{nd.icon} {tr(nd.title)} {SHOW_UC && nd.uc ? <span className="tag" style={{ marginInlineStart: 6 }}>{nd.uc}</span> : null}</span>
-      <span className="chain-metric">{s === "run" ? t("running") : i < ran ? tr(nd.metric) : "—"}</span></div>); })}</div>);
+      <span className="chain-metric">{s === "run" ? t("running") : i < ran ? getKpiDisplay(storyKey, `story.${i + 1}.metric`, tr(nd.metric)) : "—"}</span></div>); })}</div>);
 }
 function FiscalBox({ f }) {
   const { t } = useStore(); const rows = [["ceiling", f.ceiling, ""], ["commit", f.commit, "−"], ["planL", f.plan, "−"], ["reserve", f.reserve, "−"]];
@@ -1421,22 +1443,25 @@ function MiniKpi({ label, value, color }) {
 }
 function RevenueMini() {
   const { t, tr } = useStore();
+  const sources = configuredRevenueSources();
+  const totals = configuredRevenueTotals();
   return (<div>
     <div className="cols-3" style={{ marginBottom: 12 }}>
-      <MiniKpi label={t("rev_billed")} value={(REV_TOTALS.billed / 1000).toFixed(2) + " B"} />
-      <MiniKpi label={t("rev_collected")} value={(REV_TOTALS.collected / 1000).toFixed(2) + " B"} />
-      <MiniKpi label={t("rev_rate")} value={REV_TOTALS.rate + "%"} color="var(--green-dark)" />
+      <MiniKpi label={t("rev_billed")} value={(totals.billed / 1000).toFixed(2) + " B"} />
+      <MiniKpi label={t("rev_collected")} value={(totals.collected / 1000).toFixed(2) + " B"} />
+      <MiniKpi label={t("rev_rate")} value={totals.rate + "%"} color="var(--green-dark)" />
     </div>
     <div className="scrollx"><table className="tbl"><thead><tr><th>{t("rev_source")}</th><th className="right-num">{t("cc_net")}</th><th className="right-num">{t("cc_collected")}</th><th className="right-num">{t("rev_rate")}</th></tr></thead>
-      <tbody>{REVENUE_SOURCES.map(s => { var rate = (s.collected / s.net * 100).toFixed(1); return (<tr key={s.key}><td style={{ fontWeight: 600 }}>{tr(s.name)}</td><td className="right-num mono">{s.net}</td><td className="right-num mono">{s.collected}</td><td className="right-num mono" style={{ fontWeight: 700, color: parseFloat(rate) < 75 ? "var(--amber)" : "var(--green-dark)" }}>{rate}%</td></tr>); })}</tbody></table></div>
-    <div className="muted" style={{ fontSize: 11.5, marginTop: 6 }}>{t("rev_excl")}: {REV_TOTALS.excl} M</div>
+      <tbody>{sources.map(s => { var rate = (s.collected / s.net * 100).toFixed(1); return (<tr key={s.key}><td style={{ fontWeight: 600 }}>{tr(s.name)}</td><td className="right-num mono">{s.net}</td><td className="right-num mono">{s.collected}</td><td className="right-num mono" style={{ fontWeight: 700, color: parseFloat(rate) < 75 ? "var(--amber)" : "var(--green-dark)" }}>{rate}%</td></tr>); })}</tbody></table></div>
+    <div className="muted" style={{ fontSize: 11.5, marginTop: 6 }}>{t("rev_excl")}: {totals.excl} M</div>
   </div>);
 }
 function PerfDevBlock() {
   const { t, tr } = useStore();
+  const totals = configuredRevenueTotals();
   return (<div>
     <div className="cols-3" style={{ marginBottom: 12 }}>
-      <MiniKpi label={t("rev_rate")} value={REV_TOTALS.rate + "%"} />
+      <MiniKpi label={t("rev_rate")} value={totals.rate + "%"} />
       <MiniKpi label={t("pd_growth")} value="+6.4%" color="var(--green-dark)" />
       <MiniKpi label={t("pd_excl")} value={REV_TOTALS.excl + " M"} />
     </div>
@@ -1481,9 +1506,14 @@ function QueryAudit() {
 }
 function ForecastBlock() {
   const { t } = useStore(); const C = RC; if (!C || !C.ResponsiveContainer) return null;
+  const chartData = FORECAST_OBLIG.map((row) => ({
+    ...row,
+    oblig: getChartNumber("planning", "forecast_obligations", row.m, "obligations", row.oblig),
+    space: getChartNumber("planning", "forecast_obligations", row.m, "fiscal_space", row.space),
+  }));
   return (<div>
     <div style={{ width: "100%", height: 240 }}><C.ResponsiveContainer>
-      <C.ComposedChart data={FORECAST_OBLIG} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
+      <C.ComposedChart data={chartData} margin={{ top: 8, right: 10, left: -10, bottom: 0 }}>
         <C.CartesianGrid strokeDasharray="3 3" stroke="#eef2ef" vertical={false} />
         <C.XAxis dataKey="m" tick={{ fontSize: 11 }} /><C.YAxis tick={{ fontSize: 11 }} />
         <C.Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: "1px solid #e2eae5" }} /><C.Legend wrapperStyle={{ fontSize: 11 }} />
@@ -1554,7 +1584,7 @@ function Storyline({ story, title, sub }) {
   return (<div className="fade">
     <PageHeader title={title} sub={sub} right={<button className="btn ghost sm" onClick={restart}>↺ {t("storyRestart")}</button>} />
     <Section title={SHOW_UC ? GCODE[story.key] : t("flow_steps")}>
-      <StoryChain nodes={nodes} ran={ran} runningIdx={runningIdx} view={view} setView={setView} />
+      <StoryChain nodes={nodes} storyKey={story.key} ran={ran} runningIdx={runningIdx} view={view} setView={setView} />
       <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
         {!finished && !awaitingDecision && <button className="btn" disabled={busy} onClick={runNext}>{busy ? t("storyRunning") : "▶ " + t("storyRun") + " (" + (ran + 1) + "/" + nodes.length + ")"}</button>}
         {awaitingDecision && <span className="chip amber">⏳ {t("pending")}</span>}{finished && <span className="chip">✓ {t("storyDone")}</span>}
@@ -1661,7 +1691,7 @@ function VisionTable() {
 }
 function RevenueSplit() {
   const { t, tr } = useStore(); const C = RC; if (!C || !C.ResponsiveContainer) return null;
-  const data = REVENUE_SOURCES.map(s => ({ name: tr(s.name), collected: s.collected, outstanding: s.net - s.collected, weight: s.weight, color: s.color }));
+  const data = configuredRevenueSources().map(s => ({ name: tr(s.name), collected: s.collected, outstanding: s.net - s.collected, weight: s.weight, color: s.color }));
   return (<div style={{ width: "100%", height: 280 }}><C.ResponsiveContainer>
     <C.ComposedChart data={data} margin={{ top: 22, right: 8, left: -14, bottom: 0 }}>
       <C.CartesianGrid strokeDasharray="3 3" stroke="#eef2ef" vertical={false} />
@@ -1676,7 +1706,7 @@ function RevenueSplit() {
 }
 function CollectionRate() {
   const { t, tr } = useStore();
-  return (<div className="fd-scroll">{REVENUE_SOURCES.map(s => { const rate = s.collected / s.net * 100;
+  return (<div className="fd-scroll">{configuredRevenueSources().map(s => { const rate = s.collected / s.net * 100;
     return (<div className="col-card" key={s.key}>
       <div className="cch"><span className="ccname">{tr(s.name)}</span><span className="ccpct">{rate.toFixed(1)}%</span></div>
       <div className="progress"><span style={{ width: rate + "%" }} /></div>
@@ -1685,19 +1715,31 @@ function CollectionRate() {
 }
 function ReceivableProg() {
   const { t } = useStore();
+  const matrix = AR_MATRIX.map((row) => ({
+    ...row,
+    v: row.v.map((value, index) => getChartNumber("revassets", "receivable_aging_matrix", `${keyify(row.m)}.${index + 1}`, `bucket_${index + 1}`, value)),
+  }));
   return (<div>
     <div className="muted" style={{ fontSize: 12.5, marginBottom: 10 }}>{t("rp_caption")}</div>
     <div className="ar-leg">{AR_LEGEND.map(l => (<span className="lgc" key={l.k}><span className="d" style={{ background: l.c }} />{t(l.k)} <span className="v">{l.v}</span></span>))}</div>
     <div className="card pad" style={{ background: "#fff" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}><strong style={{ fontSize: 13 }}>{t("rp_matrix")}</strong><span className="muted" style={{ fontSize: 11 }}>{t("rp_unit")}</span></div>
       <div className="scrollx"><table className="heat"><thead><tr><th></th>{AR_BUCKETS.map(b => <th key={b}>{b === "buck_current" ? t("buck_current") : b}</th>)}</tr></thead>
-        <tbody>{AR_MATRIX.map(r => (<tr key={r.m}><td className="rh">{r.m}</td>{r.v.map((v, i) => { const c = arHeat(v); return <td key={i} className="cell" style={{ background: c[0], color: c[1] }}>{v.toFixed(1)}%</td>; })}</tr>))}</tbody></table></div>
+        <tbody>{matrix.map(r => (<tr key={r.m}><td className="rh">{r.m}</td>{r.v.map((v, i) => { const c = arHeat(v); return <td key={i} className="cell" style={{ background: c[0], color: c[1] }}>{v.toFixed(1)}%</td>; })}</tr>))}</tbody></table></div>
     </div>
   </div>);
 }
 function RegionalAchieve() {
   const { t, tr } = useStore();
-  return (<div className="fd-scroll">{REGIONAL_ACHIEVE.map((r, i) => { const gap = +(r.target - r.pct).toFixed(1); const status = gap <= 0 ? "above" : gap <= 3 ? "near" : "below";
+  const rows = REGIONAL_ACHIEVE.map((row) => {
+    const itemKey = keyify(row.name.en);
+    return {
+      ...row,
+      pct: getChartNumber("revassets", "regional_achievement", itemKey, "actual_rate", row.pct),
+      target: getChartNumber("revassets", "regional_achievement", itemKey, "target_rate", row.target),
+    };
+  });
+  return (<div className="fd-scroll">{rows.map((r, i) => { const gap = +(r.target - r.pct).toFixed(1); const status = gap <= 0 ? "above" : gap <= 3 ? "near" : "below";
     return (<div className="ach-card" key={i}>
       <div className="ach-head"><span className="ach-name">{tr(r.name)}</span><span className="ach-pct" style={{ color: status === "below" ? "var(--danger)" : "var(--green-dark)" }}>{r.pct}%</span></div>
       <div className="ach-track"><div className="ach-fill" style={{ width: r.pct + "%", background: status === "below" ? "var(--amber)" : "var(--green)" }} /><div className="ach-target" style={{ insetInlineStart: r.target + "%" }} /></div>
@@ -2812,6 +2854,16 @@ function FlowG05Comp() { return <DirectorateFlow flow={MF_G05_COMP} />; }
 function FlowG05Cost() { return <DirectorateFlow flow={MF_G05_COST} />; }
 function FlowG05Acct() { return <DirectorateFlow flow={MF_G05_ACCT} />; }
 
+function configuredDistribution(route, chartKey, seriesKey, rows) {
+  const configured = rows.map((row) => {
+    const itemKey = keyify(row.am?.en || row.am?.zh || row.v);
+    const value = getChartNumber(route, chartKey, itemKey, seriesKey, Number.parseFloat(String(row.v).replace(/[^0-9.-]/g, "")) || 0);
+    return { ...row, value, v: getChartDisplay(route, chartKey, itemKey, seriesKey, row.v) };
+  });
+  const max = Math.max(...configured.map((row) => row.value), 1);
+  return configured.map((row) => ({ ...row, pct: Math.max(4, row.value / max * 100) }));
+}
+
 function RcWorkbench() {
   const { t, tr, setRoute, pushLog, setPerfJump, setBackRoute, setDeptSub, setAlertsOpen } = useStore();
   const [ask, setAsk] = useState("");
@@ -2961,7 +3013,7 @@ function RcWorkbench() {
       <div className="wb-panel"><div className="wb-ph plain"><b>{tr({ en: "Amanah Distribution", ar: "توزيع الأمانات", zh: "阿玛纳分布" })}</b></div>
         <div className="wb-pb">
           <div className="wb-kl2">{tr({ en: "Top Amanat by billing gap", ar: "أعلى الأمانات حسب فجوة الفوترة", zh: "按开票缺口排序的阿玛纳" })}</div>
-          {WB.dist.map((d, i) => (<div className="wb-dist" key={i}><div className="dn">{tr(d.am)}</div><div className="dt"><span className={"df " + d.cls} style={{ width: d.pct + "%" }} /></div><div className="dv"><Money v={d.v} /></div></div>))}
+          {configuredDistribution("rcbench", "gap_by_amana", "gap_amount", WB.dist).map((d, i) => (<div className="wb-dist" key={i}><div className="dn">{tr(d.am)}</div><div className="dt"><span className={"df " + d.cls} style={{ width: d.pct + "%" }} /></div><div className="dv"><Money v={d.v} /></div></div>))}
           <div className="wb-other"><span>{tr({ en: "Other 42 Amanat", ar: "42 أمانة أخرى", zh: "其余 42 个阿玛纳" })}</span><b><Money v="SAR 19M" /></b></div>
         </div></div>
     </div>
@@ -3045,12 +3097,13 @@ const AS_KPI_SLIDES = [
     { lab: { en: "Impairment Alerts", ar: "تنبيهات الانخفاض", zh: "减值告警" }, v: "3", d: { en: "equipment · SAR 47M", ar: "معدات · 47 مليون", zh: "设备 · SAR 47M" } },
   ],
 ];
-function KpiCarousel({ slides, tone }) {
+function KpiCarousel({ slides, tone, configRoute }) {
   const { tr, setAlertsOpen } = useStore();
   const [idx, setIdx] = useState(0);
   const [openAct, setOpenAct] = useState(false);
-  const actCard = slides.flat().find(c => c.act);
-  useEffect(() => { const id = setInterval(() => setIdx(i => (i + 1) % slides.length), 5000); return () => clearInterval(id); }, [slides.length]);
+  const configuredSlides = useMemo(() => applyKpiSlides(configRoute, slides), [configRoute, slides]);
+  const actCard = configuredSlides.flat().find(c => c.act);
+  useEffect(() => { const id = setInterval(() => setIdx(i => (i + 1) % configuredSlides.length), 5000); return () => clearInterval(id); }, [configuredSlides.length]);
   const card = (c, i) => c.aging
     ? (<div className="ws-kpi2 km kmrisk" key={i}><div className="lab">{tr(c.lab)}</div>
         <div className="km-aging">{c.aging.map((b, j) => (<div className="ab" key={j}><div className="abar"><i style={{ width: b[1] + "%" }} /></div><div className="at">{b[0]}</div><div className="av">{b[2]}</div></div>))}</div></div>)
@@ -3064,10 +3117,10 @@ function KpiCarousel({ slides, tone }) {
   return (<div className={"kpi-carousel " + (tone || "green")}>
     <div className="kpi-viewport">
       <div className="kpi-track" style={{ transform: `translateY(-${idx * 118}px)` }}>
-        {slides.map((cards, si) => (<div className="kpi-slide" key={si}><div className="ws-kpirow km4">{cards.map(card)}</div></div>))}
+        {configuredSlides.map((cards, si) => (<div className="kpi-slide" key={si}><div className="ws-kpirow km4">{cards.map(card)}</div></div>))}
       </div>
     </div>
-    <div className="kpi-dots">{slides.map((_, i) => (<button key={i} className={"kpi-dot" + (i === idx ? " on" : "")} onClick={() => setIdx(i)} aria-label={"slide " + (i + 1)} />))}</div>
+    <div className="kpi-dots">{configuredSlides.map((_, i) => (<button key={i} className={"kpi-dot" + (i === idx ? " on" : "")} onClick={() => setIdx(i)} aria-label={"slide " + (i + 1)} />))}</div>
     {openAct && actCard && <div className="km-pop">
       <div className="km-poph"><b>{tr({ en: "5 escalations · prioritized by impact", ar: "5 تصعيدات · حسب الأثر", zh: "5 项升级 · 按影响排序" })}</b><button className="km-popx" onClick={(e) => { e.stopPropagation(); setOpenAct(false); }}>✕</button></div>
       {actCard.items.map((it, j) => (<div className="km-popr" key={j} onClick={() => { setOpenAct(false); setAlertsOpen(true); }}><span className="r">{j + 1}</span><div className="m"><div className="t">{tr(it.t)}</div><div className="s">{tr(it.s)}</div></div><span className="v">{it.v}</span></div>))}
@@ -3552,7 +3605,7 @@ function RcWorkspace() {
       </div>
     </div>
     {/* top KPI metrics — carousel */}
-    <KpiCarousel tone="green" slides={RC_KPI_SLIDES} />
+    <KpiCarousel tone="green" slides={RC_KPI_SLIDES} configRoute="rcwork" />
     <div className="ws-grid2">
       {/* LEFT (50%) — Business Plaza + Multi-Agent Flow */}
       <div className="ws-left">
@@ -3785,7 +3838,7 @@ function AssetsWorkbench() {
       <div className="wb-panel"><div className="wb-ph plain"><b>{tr({ en: "Asset Class Distribution", ar: "توزيع فئات الأصول", zh: "资产类别分布" })}</b></div>
         <div className="wb-pb">
           <div className="wb-kl2">{tr({ en: "Capitalized value by class", ar: "القيمة المرسملة حسب الفئة", zh: "按类别的已资本化价值" })}</div>
-          {WB_AS.dist.map((d, i) => (<div className="wb-dist" key={i}><div className="dn">{tr(d.am)}</div><div className="dt"><span className={"df " + d.cls} style={{ width: d.pct + "%" }} /></div><div className="dv"><Money v={d.v} /></div></div>))}
+          {configuredDistribution("asbench", "capitalization_by_class", "capitalized_amount", WB_AS.dist).map((d, i) => (<div className="wb-dist" key={i}><div className="dn">{tr(d.am)}</div><div className="dt"><span className={"df " + d.cls} style={{ width: d.pct + "%" }} /></div><div className="dv"><Money v={d.v} /></div></div>))}
           <div className="wb-other"><span>{tr({ en: "Total capitalized", ar: "إجمالي المرسمل", zh: "已资本化合计" })}</span><b><Money v="SAR 1.92B" /></b></div>
         </div></div>
     </div>
@@ -3903,7 +3956,7 @@ function AssetsWorkspace() {
       </div>
     </div>
     {/* top KPI metrics — carousel (asset lifecycle + UC-14 outputs) */}
-    <KpiCarousel tone="violet" slides={AS_KPI_SLIDES} />
+    <KpiCarousel tone="violet" slides={AS_KPI_SLIDES} configRoute="aswork" />
     <div className="ws-grid2">
       {/* LEFT (50%) — Business Plaza */}
       <div className="ws-left">
@@ -4425,6 +4478,15 @@ const RP_REPORTS = [
   { id: "adhoc", name: { en: "Ad-hoc · \"Overdue by Amanah\"", ar: "حسب الطلب · «التأخر حسب الأمانة»", zh: "即席 · 「按阿玛纳逾期」" }, sub: { en: "Natural-language query report", ar: "تقرير استعلام بلغة طبيعية", zh: "自然语言查询报告" }, type: { en: "Ad-hoc · NL", ar: "حسب الطلب · لغة طبيعية", zh: "即席 · 自然语言" }, period: "Q2 2026", srcs: ["13", "03"], status: "draft", upd: "10m", title: { en: "Ad-hoc · \"Overdue by Amanah\"", ar: "حسب الطلب · «التأخر حسب الأمانة»", zh: "即席 · 「按阿玛纳逾期」" } },
 ];
 const RP_STEPS = { draft: 0, review: 1, appr: 2, issued: 3 };
+const REPORT_COLLECTION_TREND_DEFAULT = [{ period: "Q3-25", value: 83 }, { period: "Q4-25", value: 85 }, { period: "Q1-26", value: 85 }, { period: "Q2-26", value: 87 }];
+function CollectionTrendPreview() {
+  const rows = REPORT_COLLECTION_TREND_DEFAULT.map((row) => ({
+    ...row,
+    value: getChartNumber("reports", "collection_rate_trend", keyify(row.period), "collection_rate", row.value),
+  }));
+  const max = Math.max(...rows.map((row) => row.value), 1);
+  return (<div className="rp-chart">{rows.map((row) => <div className="rp-bar" key={row.period} style={{ height: Math.max(18, row.value / max * 80) + "%" }}><span>{row.value}%</span><small>{row.period}</small></div>)}</div>);
+}
 function ReportHub() {
   const { tr, setRoute, backRoute, setBackRoute, pushLog } = useStore();
   const [reports, setReports] = useState(RP_REPORTS);
@@ -4521,7 +4583,7 @@ function ReportHub() {
                 <tr><td>{tr({ en: "Compliance memos (open)", ar: "مذكرات الامتثال (مفتوحة)", zh: "合规备忘(未结)" })}</td><td className="num">1</td><td><span className="rp-uc uc11">{tr({ en: "Compliance", ar: "الامتثال", zh: "合规部" })}</span></td></tr>
               </tbody></table>
             <p className="rp-secl">{tr({ en: "Trend · collection rate by quarter", ar: "الاتجاه · معدل التحصيل ربعياً", zh: "趋势 · 各季度征收率" })}</p>
-            <div className="rp-chart"><div className="rp-bar" style={{ height: "60%" }}><span>83%</span><small>Q3-25</small></div><div className="rp-bar" style={{ height: "64%" }}><span>85%</span><small>Q4-25</small></div><div className="rp-bar" style={{ height: "68%" }}><span>85%</span><small>Q1-26</small></div><div className="rp-bar" style={{ height: "80%" }}><span>87%</span><small>Q2-26</small></div></div>
+            <CollectionTrendPreview />
             <p className="rp-secl">{tr({ en: "Narrative commentary · auto-generated", ar: "تعليق سردي · مولّد تلقائياً", zh: "叙述评述 · 自动生成" })}</p>
             <div className="rp-narr"><span className="tag">AI</span>{tr({ en: "Collection rate rose to 87% (+2.1pp). ", ar: "ارتفع معدل التحصيل إلى 87% (+2.1). ", zh: "征收率升至 87%(环比 +2.1pp)。" })}<span className="dev">{tr({ en: "Deviation:", ar: "انحراف:", zh: "偏差:" })}</span>{tr({ en: " a SAR 120M gap remains in 3 Amanat (lease arrears >60d). SAR 1.92B of AUC was capitalized; ", ar: " تبقى فجوة 120 مليون في 3 أمانات. ورُسمل 1.92 مليار؛ ", zh: " SAR 120M 缺口集中于 3 个阿玛纳(租约逾期>60天)。已资本化 SAR 1.92B 在建资产;" })}<span className="dev">{tr({ en: "deviation:", ar: "انحراف:", zh: "偏差:" })}</span>{tr({ en: " 3 equipment items flagged for impairment. ", ar: " 3 معدات مرصودة للانخفاض. ", zh: "3 项设备标记减值。" })}<span className="dev">{tr({ en: "Open item:", ar: "بند مفتوح:", zh: "未结项:" })}</span>{tr({ en: " 1 useful-life policy conflict (UC-11) pending before issuance.", ar: " تعارض سياسة عمر إنتاجي معلّق قبل الإصدار.", zh: " 1 项使用年限政策冲突(UC-11)待解决后方可签发。" })}</div>
             <div className="rp-narrnote">{tr({ en: "Commentary explains deviations, not just numbers (BR-02) · human review required before release.", ar: "التعليق يفسّر الانحرافات لا الأرقام فقط (BR-02) · يلزم مراجعة بشرية.", zh: "评述解释偏差而非仅罗列数字(BR-02)· 签发前需人工复核。" })}</div>
@@ -4675,7 +4737,7 @@ function OrchChat({ cfg }) {
   </div></div>);
 }
 
-function DeptWorkspace({ cfg }) {
+function DeptWorkspace({ cfg, configRoute }) {
   const { tr } = useStore();
   return (<div className="fade"><div className="card pad ws-frame">
     <div className="ws-head">
@@ -4688,7 +4750,7 @@ function DeptWorkspace({ cfg }) {
           <div className={"fb " + f.cls}>{f.star ? "★ " : ""}{SHOW_UC ? f.code : tr(f.label)}</div></React.Fragment>))}</div>
       </div>
     </div>
-    <KpiCarousel tone={cfg.kpiTone} slides={cfg.kpiSlides} />
+    <KpiCarousel tone={cfg.kpiTone} slides={cfg.kpiSlides} configRoute={configRoute} />
     <div className="ws-grid2">
       <div className="ws-left"><BusinessPlaza model={cfg.plazaModel} defaultSel={cfg.plazaSel} /></div>
       <div className="ws-right">
@@ -5267,15 +5329,15 @@ const WS_CFG_REPORTING = {
 };
 
 
-function FpaWorkspace() { return <DeptWorkspace cfg={WS_CFG_FPA} />; }
-function AuditWorkspace() { return <DeptWorkspace cfg={WS_CFG_AUDIT} />; }
-function BudgetExecWorkspace() { return <DeptWorkspace cfg={WS_CFG_BUDEXEC} />; }
-function PlanningWorkspace() { return <DeptWorkspace cfg={WS_CFG_PLANNING} />; }
-function EntitlementsWorkspace() { return <DeptWorkspace cfg={WS_CFG_ENT} />; }
-function AccountingWorkspace() { return <DeptWorkspace cfg={WS_CFG_ACCT} />; }
-function CostWorkspace() { return <DeptWorkspace cfg={WS_CFG_COST} />; }
-function ComplianceWorkspace() { return <DeptWorkspace cfg={WS_CFG_COMPLIANCE} />; }
-function ReportingWorkspace() { return <DeptWorkspace cfg={WS_CFG_REPORTING} />; }
+function FpaWorkspace() { return <DeptWorkspace cfg={WS_CFG_FPA} configRoute="fpawork" />; }
+function AuditWorkspace() { return <DeptWorkspace cfg={WS_CFG_AUDIT} configRoute="audwork" />; }
+function BudgetExecWorkspace() { return <DeptWorkspace cfg={WS_CFG_BUDEXEC} configRoute="buwork" />; }
+function PlanningWorkspace() { return <DeptWorkspace cfg={WS_CFG_PLANNING} configRoute="plnwork" />; }
+function EntitlementsWorkspace() { return <DeptWorkspace cfg={WS_CFG_ENT} configRoute="entwork" />; }
+function AccountingWorkspace() { return <DeptWorkspace cfg={WS_CFG_ACCT} configRoute="acctwork" />; }
+function CostWorkspace() { return <DeptWorkspace cfg={WS_CFG_COST} configRoute="costwork" />; }
+function ComplianceWorkspace() { return <DeptWorkspace cfg={WS_CFG_COMPLIANCE} configRoute="compwork" />; }
+function ReportingWorkspace() { return <DeptWorkspace cfg={WS_CFG_REPORTING} configRoute="frepwork" />; }
 
 /* =========================================================================
    Reports
