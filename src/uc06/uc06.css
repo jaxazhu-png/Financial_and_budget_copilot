@@ -1,0 +1,113 @@
+@tailwind base;
+
+/* ---- Scoped reset (Tailwind preflight is disabled globally so it can't
+   touch the rest of the app; we re-apply the essential resets only inside
+   the ported UC-06 page). These selectors are kept at low specificity so the
+   `important: '.uc06-root'` utilities (which become `.uc06-root .x`) win. ---- */
+.uc06-root,
+.uc06-root *,
+.uc06-root *::before,
+.uc06-root *::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e7eb;
+}
+.uc06-root {
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  background-color: #f9fafb;
+  color: #111927;
+  line-height: 1.5;
+  min-height: 100%;
+}
+.uc06-root h1,
+.uc06-root h2,
+.uc06-root h3,
+.uc06-root h4,
+.uc06-root h5,
+.uc06-root h6 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+.uc06-root p,
+.uc06-root figure,
+.uc06-root blockquote,
+.uc06-root dl,
+.uc06-root dd,
+.uc06-root pre {
+  margin: 0;
+}
+.uc06-root ul,
+.uc06-root ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.uc06-root button,
+.uc06-root input,
+.uc06-root optgroup,
+.uc06-root select,
+.uc06-root textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+  padding: 0;
+}
+.uc06-root button {
+  background: none;
+  cursor: pointer;
+  text-transform: none;
+}
+.uc06-root img,
+.uc06-root svg,
+.uc06-root video,
+.uc06-root canvas {
+  display: block;
+  vertical-align: middle;
+}
+.uc06-root img,
+.uc06-root video {
+  max-width: 100%;
+  height: auto;
+}
+.uc06-root a {
+  color: inherit;
+  text-decoration: inherit;
+}
+.uc06-root table {
+  border-collapse: collapse;
+}
+.uc06-root hr {
+  border-top-width: 1px;
+}
+
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar (scoped) */
+.uc06-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.uc06-root ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+.uc06-root ::-webkit-scrollbar-thumb {
+  background: #d2d6db;
+  border-radius: 3px;
+}
+.uc06-root ::-webkit-scrollbar-thumb:hover {
+  background: #9da4ae;
+}
+
+/* Fade in animations */
+@keyframes uc06FadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.uc06-root .animate-fadeIn {
+  animation: uc06FadeIn 0.4s ease-out forwards;
+}

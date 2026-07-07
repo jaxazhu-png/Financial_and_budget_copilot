@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Plaza - G-06 Concept</title>
+  <style>
+    :root {
+      --green: #1b8354;
+      --green-dark: #14573a;
+      --green-soft: #ecfdf3;
+      --blue: #255aa8;
+      --blue-soft: #eef5ff;
+      --purple: #7442a8;
+      --purple-soft: #f6f0fb;
+      --ink: #17211c;
+      --muted: #66716b;
+      --line: #d9e0dc;
+      --surface: #ffffff;
+      --canvas: #f5f7f6;
+      --warning: #b54708;
+      --shadow: 0 8px 24px rgba(23, 33, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "IBM Plex Sans Arabic", "Segoe UI", Arial, sans-serif;
+    }
+
+    button { font: inherit; }
+
+    .page {
+      width: min(1480px, calc(100% - 40px));
+      margin: 24px auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 4px 0 5px;
+      font-size: 25px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .button {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 9px 13px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .button:hover { border-color: var(--green); }
+    .button.primary { color: #fff; background: var(--green); border-color: var(--green); }
+    .button.primary:hover { background: var(--green-dark); }
+
+    .shell {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .tab {
+      border: 0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--green-dark);
+      background: var(--green-soft);
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .key { width: 10px; height: 10px; border-radius: 2px; background: var(--blue); }
+    .key.assets { background: var(--purple); }
+    .key.shared { background: var(--green); }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      min-height: 670px;
+    }
+
+    .map {
+      min-width: 0;
+      padding: 18px;
+      background:
+        linear-gradient(#eef2ef 1px, transparent 1px),
+        linear-gradient(90deg, #eef2ef 1px, transparent 1px),
+        #fafcfb;
+      background-size: 28px 28px;
+    }
+
+    .journey-head,
+    .lane {
+      display: grid;
+      grid-template-columns: 150px repeat(4, minmax(145px, 1fr));
+      gap: 12px;
+    }
+
+    .journey-head {
+      align-items: end;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .journey-head div:not(:first-child) {
+      padding: 0 4px 6px;
+      border-bottom: 2px solid #dfe6e2;
+    }
+
+    .lane {
+      position: relative;
+      align-items: stretch;
+      margin-bottom: 14px;
+      padding: 14px;
+      border: 1px solid;
+      border-radius: 8px;
+    }
+
+    .lane.revenue { border-color: #b9cdeb; background: rgba(238, 245, 255, .84); }
+    .lane.assets { border-color: #d7c2ea; background: rgba(246, 240, 251, .84); }
+
+    .lane-label {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 152px;
+      padding: 4px 8px 4px 2px;
+    }
+
+    .dept-tag {
+      align-self: flex-start;
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .revenue .dept-tag { background: var(--blue); }
+    .assets .dept-tag { background: var(--purple); }
+
+    .lane-label h2 {
+      margin: 9px 0 4px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .lane-label p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .lane-open {
+      align-self: flex-start;
+      border: 0;
+      padding: 0;
+      color: var(--green-dark);
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .uc-card {
+      position: relative;
+      min-width: 0;
+      min-height: 152px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-top: 4px solid;
+      border-radius: 7px;
+      background: #fff;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, opacity .15s;
+    }
+
+    .revenue .uc-card { border-top-color: var(--blue); }
+    .assets .uc-card { border-top-color: var(--purple); }
+
+    .uc-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(23, 33, 28, .11);
+    }
+
+    .uc-card.dim { opacity: .24; }
+    .uc-card.highlight {
+      outline: 3px solid rgba(27, 131, 84, .24);
+      box-shadow: 0 10px 25px rgba(27, 131, 84, .18);
+    }
+
+    .uc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .uc-code {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    .status {
+      border-radius: 999px;
+      padding: 3px 6px;
+      color: var(--green-dark);
+      background: var(--green-soft);
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .status.warning { color: var(--warning); background: #fff4e5; }
+
+    .uc-card h3 {
+      min-height: 38px;
+      margin: 12px 0 6px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .uc-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10.5px;
+      line-height: 1.45;
+    }
+
+    .uc-meta {
+      position: absolute;
+      right: 12px;
+      bottom: 11px;
+      left: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 9px;
+      border-top: 1px solid #edf0ee;
+      color: var(--muted);
+      font-size: 9.5px;
+    }
+
+    .shared-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+      padding: 14px;
+      border: 1px solid #b9d9c8;
+      border-radius: 8px;
+      background: rgba(236, 253, 243, .9);
+    }
+
+    .shared-label {
+      padding: 4px 8px 4px 2px;
+    }
+
+    .shared-label h2 { margin: 8px 0 4px; font-size: 15px; }
+    .shared-label p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+    .shared-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 96px;
+      padding: 14px;
+      border: 1px solid #b9d9c8;
+      border-radius: 7px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .shared-card:hover { border-color: var(--green); }
+
+    .shared-code {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 7px;
+      color: #fff;
+      background: var(--green);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .shared-card h3 { margin: 0 0 4px; font-size: 13px; }
+    .shared-card p { margin: 0; color: var(--muted); font-size: 10.5px; }
+    .shared-badge { color: var(--green-dark); font-size: 10px; font-weight: 800; }
+
+    .side {
+      border-left: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .side-section {
+      padding: 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .side-section h2 {
+      margin: 0 0 5px;
+      font-size: 14px;
+    }
+
+    .side-section > p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .task-list,
+    .exchange-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .task,
+    .exchange {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 11px;
+      text-align: left;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .task:hover,
+    .exchange:hover,
+    .exchange.active {
+      border-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .task strong,
+    .exchange strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 11.5px;
+    }
+
+    .task span,
+    .exchange span {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .route {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      color: var(--green-dark);
+      font-size: 9.5px;
+      font-weight: 800;
+    }
+
+    .route i {
+      width: 14px;
+      height: 1px;
+      background: var(--green);
+    }
+
+    .detail {
+      margin-top: 12px;
+      padding: 12px;
+      border-left: 3px solid var(--green);
+      background: #f7faf8;
+      font-size: 10.5px;
+      line-height: 1.55;
+    }
+
+    .detail b { display: block; margin-bottom: 3px; }
+
+    .view-note {
+      display: none;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid #b9d9c8;
+      border-radius: 7px;
+      color: var(--green-dark);
+      background: var(--green-soft);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .view-note.visible { display: block; }
+
+    @media (max-width: 1120px) {
+      .content { grid-template-columns: 1fr; }
+      .side { border-top: 1px solid var(--line); border-left: 0; }
+      .journey-head, .lane { grid-template-columns: 130px repeat(4, minmax(150px, 1fr)); }
+      .map { overflow-x: auto; }
+      .map-inner { min-width: 980px; }
+    }
+
+    @media (max-width: 720px) {
+      .page { width: min(100% - 20px, 1480px); margin: 10px auto; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .actions { justify-content: flex-start; }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .legend { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">G-06 · General Directorate of Revenues and Assets</div>
+        <h1>Business Plaza</h1>
+        <div class="subtitle">A navigable business map for Revenue Collection and Assets, with cross-department exchanges shown on demand.</div>
+      </div>
+      <div class="actions">
+        <button class="button" id="resetButton">Reset view</button>
+        <button class="button primary" data-task="anomaly">Investigate anomaly</button>
+      </div>
+    </header>
+
+    <section class="shell">
+      <div class="toolbar">
+        <nav class="tabs" aria-label="Business Plaza views">
+          <button class="tab active" data-view="overview">Overview</button>
+          <button class="tab" data-view="revenue">Revenue Collection</button>
+          <button class="tab" data-view="assets">Assets</button>
+          <button class="tab" data-view="cross">Cross-department exchanges</button>
+        </nav>
+        <div class="legend">
+          <span><i class="key"></i> Revenue</span>
+          <span><i class="key assets"></i> Assets</span>
+          <span><i class="key shared"></i> Shared capability</span>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="map">
+          <div class="map-inner">
+            <div class="view-note" id="viewNote"></div>
+
+            <div class="journey-head">
+              <div>Department</div>
+              <div>Prepare</div>
+              <div>Analyze</div>
+              <div>Control</div>
+              <div>Deliver</div>
+            </div>
+
+            <section class="lane revenue" data-lane="revenue">
+              <div class="lane-label">
+                <div>
+                  <span class="dept-tag">Revenue</span>
+                  <h2>Revenue Collection Department</h2>
+                  <p>Collection performance, exclusions, anomalies and executive reporting.</p>
+                </div>
+                <button class="lane-open" data-view="revenue">Open department flow →</button>
+              </div>
+
+              <article class="uc-card" data-node="uc01">
+                <div class="uc-top"><span class="uc-code">UC-01</span><span class="status">Ready</span></div>
+                <h3>Financial Data Unification &amp; Quality</h3>
+                <p>Reconcile revenue data and validate completeness before analysis.</p>
+                <div class="uc-meta"><span>3 agents</span><span>2 exchanges</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc13">
+                <div class="uc-top"><span class="uc-code">UC-13</span><span class="status warning">Attention</span></div>
+                <h3>Revenue, Collection &amp; Exclusions</h3>
+                <p>Identify billing gaps, exclusions and overdue collection risk.</p>
+                <div class="uc-meta"><span>3 agents</span><span>SAR 120M gap</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc06-02">
+                <div class="uc-top"><span class="uc-code">UC-06 / UC-02</span><span class="status">Active</span></div>
+                <h3>Performance, Spend &amp; Anomalies</h3>
+                <p>Produce executive analysis and route exceptions for review.</p>
+                <div class="uc-meta"><span>5 agents</span><span>14 alerts</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc10">
+                <div class="uc-top"><span class="uc-code">UC-10</span><span class="status">Shared</span></div>
+                <h3>Reporting &amp; Dashboards</h3>
+                <p>Publish periodic and executive revenue reporting.</p>
+                <div class="uc-meta"><span>3 agents</span><span>6 reports</span></div>
+              </article>
+            </section>
+
+            <section class="lane assets" data-lane="assets">
+              <div class="lane-label">
+                <div>
+                  <span class="dept-tag">Assets</span>
+                  <h2>Assets Department</h2>
+                  <p>Asset lifecycle, capitalization, costs, funds and accounting compliance.</p>
+                </div>
+                <button class="lane-open" data-view="assets">Open department flow →</button>
+              </div>
+
+              <article class="uc-card" data-node="uc14">
+                <div class="uc-top"><span class="uc-code">UC-14</span><span class="status">Ready</span></div>
+                <h3>Asset Classification &amp; Capitalization</h3>
+                <p>Classify, capitalize and monitor asset returns and maintenance.</p>
+                <div class="uc-meta"><span>3 agents</span><span>1 exchange</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc12">
+                <div class="uc-top"><span class="uc-code">UC-12</span><span class="status">Active</span></div>
+                <h3>Costs, Assignment Orders &amp; Funds</h3>
+                <p>Analyze cost basis, assignment orders and available balances.</p>
+                <div class="uc-meta"><span>3 agents</span><span>2 exchanges</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc11">
+                <div class="uc-top"><span class="uc-code">UC-11</span><span class="status warning">Review</span></div>
+                <h3>Compliance, Policies &amp; Accounting Memos</h3>
+                <p>Review anomalies and issue compliant accounting guidance.</p>
+                <div class="uc-meta"><span>3 agents</span><span>4 findings</span></div>
+              </article>
+
+              <article class="uc-card" data-node="uc03">
+                <div class="uc-top"><span class="uc-code">UC-03</span><span class="status">Ready</span></div>
+                <h3>Smart Query, Audit Log &amp; Permissions</h3>
+                <p>Provide controlled query access and evidence for reports.</p>
+                <div class="uc-meta"><span>3 agents</span><span>Audited</span></div>
+              </article>
+            </section>
+
+            <section class="shared-row">
+              <div class="shared-label">
+                <span class="dept-tag" style="background: var(--green)">Shared</span>
+                <h2>Convergence services</h2>
+                <p>Capabilities used by both departments without duplicating their workflows.</p>
+              </div>
+
+              <article class="shared-card" data-node="uc11">
+                <div class="shared-code">UC-11</div>
+                <div><h3>Shared Compliance</h3><p>Policy checks, findings and accounting memos.</p></div>
+                <span class="shared-badge">2 departments</span>
+              </article>
+
+              <article class="shared-card" data-node="uc10">
+                <div class="shared-code">UC-10</div>
+                <div><h3>Shared Reporting</h3><p>Unified periodic and executive reporting.</p></div>
+                <span class="shared-badge">2 departments</span>
+              </article>
+            </section>
+          </div>
+        </div>
+
+        <aside class="side">
+          <section class="side-section">
+            <h2>Start from a business task</h2>
+            <p>The orchestrator highlights only the UCs required for the selected task.</p>
+            <div class="task-list">
+              <button class="task" data-task="revenue">
+                <strong>Analyze revenue collection gap</strong>
+                <span>Review billing exclusions and overdue contracts.</span>
+                <span class="route">UC-01 <i></i> UC-13 <i></i> UC-06</span>
+              </button>
+              <button class="task" data-task="assets">
+                <strong>Review asset cost and fund position</strong>
+                <span>Reconcile asset basis, assignment orders and funds.</span>
+                <span class="route">UC-14 <i></i> UC-12 <i></i> UC-11</span>
+              </button>
+              <button class="task" data-task="anomaly">
+                <strong>Investigate cross-department anomaly</strong>
+                <span>Escalate a revenue exception into compliance and reporting.</span>
+                <span class="route">UC-13 <i></i> UC-02 <i></i> UC-11 <i></i> UC-10</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="side-section">
+            <h2>Cross-department exchanges</h2>
+            <p>Select one relationship to inspect it without displaying every connector at once.</p>
+            <div class="exchange-list">
+              <button class="exchange" data-from="uc13" data-to="uc12" data-title="Revenue signals → Cost/Fund reconciliation">
+                <strong>Revenue signals → Cost/Fund reconciliation</strong>
+                <span>Collection behavior informs cost and fund analysis.</span>
+              </button>
+              <button class="exchange" data-from="uc14" data-to="uc06-02" data-title="Asset cost basis → Performance reports">
+                <strong>Asset cost basis → Performance reports</strong>
+                <span>Capitalized values support executive performance analysis.</span>
+              </button>
+              <button class="exchange" data-from="uc06-02" data-to="uc11" data-title="Anomalies → Compliance review">
+                <strong>Anomalies → Compliance review</strong>
+                <span>Material exceptions are escalated for policy review.</span>
+              </button>
+              <button class="exchange" data-from="uc11" data-to="uc10" data-title="Compliance findings → Shared reporting">
+                <strong>Compliance findings → Shared reporting</strong>
+                <span>Approved findings and memos become reporting inputs.</span>
+              </button>
+              <button class="exchange" data-from="uc03" data-to="uc10" data-title="Audit trail → Shared reporting">
+                <strong>Audit trail → Shared reporting</strong>
+                <span>Permissioned evidence supports controlled report publication.</span>
+              </button>
+            </div>
+            <div class="detail" id="exchangeDetail">
+              <b>No exchange selected</b>
+              Choose a relationship above to highlight only its source and destination.
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = [...document.querySelectorAll(".tab")];
+    const cards = [...document.querySelectorAll(".uc-card")];
+    const lanes = [...document.querySelectorAll(".lane")];
+    const exchanges = [...document.querySelectorAll(".exchange")];
+    const viewNote = document.getElementById("viewNote");
+    const exchangeDetail = document.getElementById("exchangeDetail");
+
+    const taskRoutes = {
+      revenue: ["uc01", "uc13", "uc06-02"],
+      assets: ["uc14", "uc12", "uc11"],
+      anomaly: ["uc13", "uc06-02", "uc11", "uc10"]
+    };
+
+    function resetHighlights() {
+      cards.forEach(card => card.classList.remove("dim", "highlight"));
+      exchanges.forEach(item => item.classList.remove("active"));
+      exchangeDetail.innerHTML = "<b>No exchange selected</b>Choose a relationship above to highlight only its source and destination.";
+    }
+
+    function highlightNodes(ids) {
+      cards.forEach(card => {
+        const selected = ids.includes(card.dataset.node);
+        card.classList.toggle("highlight", selected);
+        card.classList.toggle("dim", !selected);
+      });
+    }
+
+    function setView(view) {
+      tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
+      resetHighlights();
+      lanes.forEach(lane => {
+        lane.style.display = view === "overview" || view === "cross" || lane.dataset.lane === view ? "grid" : "none";
+      });
+
+      const notes = {
+        overview: "",
+        revenue: "Department view: Revenue Collection main flow. Assets remains available through the Overview tab.",
+        assets: "Department view: Assets main flow. Revenue Collection remains available through the Overview tab.",
+        cross: "Relationship view: select an exchange on the right to isolate its source and destination."
+      };
+      viewNote.textContent = notes[view];
+      viewNote.classList.toggle("visible", Boolean(notes[view]));
+    }
+
+    document.querySelectorAll("[data-view]").forEach(button => {
+      button.addEventListener("click", () => setView(button.dataset.view));
+    });
+
+    document.querySelectorAll("[data-task]").forEach(button => {
+      button.addEventListener("click", () => {
+        setView("overview");
+        highlightNodes(taskRoutes[button.dataset.task] || []);
+        viewNote.textContent = `Orchestrated task path: ${button.textContent.trim().split("\n")[0]}`;
+        viewNote.classList.add("visible");
+      });
+    });
+
+    exchanges.forEach(exchange => {
+      exchange.addEventListener("click", () => {
+        setView("cross");
+        exchanges.forEach(item => item.classList.toggle("active", item === exchange));
+        highlightNodes([exchange.dataset.from, exchange.dataset.to]);
+        exchangeDetail.innerHTML = `<b>${exchange.dataset.title}</b>Only the participating capabilities are highlighted. Open either card to inspect its agents, inputs, outputs and audit evidence.`;
+      });
+    });
+
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        resetHighlights();
+        card.classList.add("highlight");
+        viewNote.textContent = `${card.dataset.node.toUpperCase()} selected · next level: department workflow, agents, inputs, outputs and audit evidence.`;
+        viewNote.classList.add("visible");
+      });
+    });
+
+    document.getElementById("resetButton").addEventListener("click", () => {
+      setView("overview");
+      viewNote.classList.remove("visible");
+    });
+  </script>
+</body>
+</html>
