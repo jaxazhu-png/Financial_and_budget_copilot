@@ -100,3 +100,13 @@
   .topbar .usermenu > .tbtn { width: 38px; overflow: hidden; font-size: 0; gap: 0; white-space: nowrap; }
   .topbar .usermenu > .tbtn svg { width: 18px; min-width: 18px; }
 }
+
+/* Align back button + storyline with Analysis Workbench (wb-*) */
+.g2-titlebar{display:flex;align-items:center;gap:10px}
+.g2-titlebar h1{margin:0}
+.g2-wb-chain{margin-top:8px}
+.g2-cpill{cursor:pointer}
+.g2-cpill:hover{filter:brightness(0.97)}
+
+/* Make group02 back-chevron bolder (the ‹ glyph is thin by default) */
+.g2-titlebar .pg-back{font-size:20px;font-weight:900;-webkit-text-stroke:0.6px currentColor}

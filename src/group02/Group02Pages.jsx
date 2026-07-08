@@ -44,12 +44,11 @@ function G02Header({ tr, title, sub, onBack, onAlerts, backLabel, storyline }) {
   return (
     <div className="g2-pagehead">
       <div className="g2-pagecopy">
-        <h1>{tr(title)}</h1>
+        <div className="g2-titlebar"><button className="pg-back" onClick={onBack}>‹</button><h1>{tr(title)}</h1></div>
         <p>{tr(sub)}</p>
       </div>
       <div className="g2-header-side">
         <div className="g2-headactions">
-          <button className="btn ghost sm" onClick={onBack}>← {tr(backLabel || COPY.back)}</button>
           <button className="btn danger sm" onClick={onAlerts}>{tr(COPY.exceptions)}</button>
         </div>
         {storyline}
@@ -152,6 +151,7 @@ function AIReadyNotice({ tr, children, tags = [] }) {
   );
 }
 
+const STORYLINE_FOUNDATION = { id: "data", route: "bench01", label: { en: "Unified data (UC-01)", ar: "بيانات موحّدة (UC-01)", zh: "统一数据 (UC-01)" } };
 const STORYLINE_MAIN_STEPS = [
   { id: "budget", route: "plnbudget", label: { en: "Budget planning", ar: "تخطيط الميزانية", zh: "预算规划" } },
   { id: "forecast", route: "plnforecast", label: { en: "Funding forecast", ar: "تنبؤ التمويل", zh: "资金预测" } },
@@ -172,42 +172,22 @@ function storylineState(id, current) {
   return "down";
 }
 export function G02BusinessStoryline({ tr, current, navigate, className = "" }) {
-  const go = (route) => {
-    if (!navigate || !route) return;
-    navigate(route);
-  };
+  const POS = { up: { en: "UPSTREAM", ar: "منبع", zh: "上游" }, here: { en: "THIS", ar: "هذه", zh: "本环节" }, down: { en: "DOWNSTREAM", ar: "المصب", zh: "下游" } };
+  const go = (route) => { if (navigate && route) navigate(route); };
+  const STEPS = [STORYLINE_FOUNDATION, STORYLINE_MAIN_STEPS[0], ...STORYLINE_DRILL_STEPS, ...STORYLINE_MAIN_STEPS.slice(1)];
+  const curIdx = STEPS.findIndex((step) => step.id === current);
+  const posOf = (i) => (curIdx < 0 ? "down" : i < curIdx ? "up" : i === curIdx ? "here" : "down");
   return (
-    <div className={`g2-storyline-mini ${className}`}>
-      <div className="g2-storyline-title">{tr({ en: "Business storyline", ar: "مسار الأعمال", zh: "业务链路" })}</div>
-      <div className="flowstrip mini g2-storyline-main" aria-label={tr({ en: "Business storyline", ar: "مسار الأعمال", zh: "业务链路" })}>
-        {STORYLINE_MAIN_STEPS.map((step, index) => (
-          <React.Fragment key={step.id}>
-            <button
-              className={`fb ${storylineState(step.id, current)}`}
-              onClick={() => go(step.route)}
-              type="button"
-              title={tr(step.label)}
-            >
-              {tr(step.label)}
-            </button>
-            {index < STORYLINE_MAIN_STEPS.length - 1 && <span className="farr">➜</span>}
-          </React.Fragment>
-        ))}
-      </div>
-      <div className="flowstrip mini g2-storyline-drill" aria-label={tr({ en: "Budget planning drill-down", ar: "تفصيل تخطيط الميزانية", zh: "预算规划下钻" })}>
-        <span className="g2-drill-label">{tr({ en: "drill-down", ar: "تفصيل", zh: "下钻" })}</span>
-        {STORYLINE_DRILL_STEPS.map((step) => (
-          <button
-            key={step.id}
-            className={`fb ${current === step.id ? "focus" : "down"}`}
-            onClick={() => go(step.route)}
-            type="button"
-            title={tr(step.label)}
-          >
-            {tr(step.label)}
-          </button>
-        ))}
-      </div>
+    <div className={`wb-chain g2-wb-chain ${className}`}>
+      <span className="wb-clab">{tr({ en: "G-02 CHAIN", ar: "سلسلة ج-02", zh: "G-02 链路" })}</span>
+      {STEPS.map((step, i) => (
+        <React.Fragment key={step.id}>
+          {i > 0 && <span className="wb-carr">→</span>}
+          <span className={"wb-cpill g2-cpill" + (i === curIdx ? " here" : "")} onClick={() => go(step.route)} title={tr(step.label)}>
+            <span className="wb-cpos">{tr(POS[posOf(i)])}</span>{tr(step.label)}
+          </span>
+        </React.Fragment>
+      ))}
     </div>
   );
 }

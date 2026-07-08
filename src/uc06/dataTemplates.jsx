@@ -1,9 +1,6 @@
-import { applyDashboardPresentationConfig } from '../data/presentationConfig.js';
-
 const REPORT_LABELS = {
     Executive: { en: 'Executive Report', ar: 'التقرير التنفيذي' },
     Disbursement: { en: 'Disbursement Report', ar: 'تقرير الصرف' },
-    DisbursementOrders: { en: 'Disbursement Orders', ar: 'أوامر الصرف' },
     Contracts: { en: 'Contracts Report', ar: 'تقرير العقود' },
     Initiatives: { en: 'Initiatives Report', ar: 'تقرير المبادرات' },
     Services: { en: 'Services Report', ar: 'تقرير الخدمات' },
@@ -629,7 +626,7 @@ const GROUP_CONFIGS = {
             en: 'Focuses on financial performance, regional gaps, service concentration, and initiative structure.',
             ar: 'يركز على الأداء المالي والفجوات المكانية وتركيز الخدمات وبنية المبادرات.',
         },
-        allowedReportTypes: ['Executive', 'DisbursementOrders', 'Initiatives', 'Services', 'Doors'],
+        allowedReportTypes: ['Executive', 'Initiatives', 'Services', 'Doors'],
         detailRows: [['doorsDetailed'], ['services', 'initiatives']],
         dashboardTableKey: 'regional',
     },
@@ -640,7 +637,7 @@ const GROUP_CONFIGS = {
             en: 'Focuses on execution pace, plan variance, budget doors, and contract-linked delivery pressure.',
             ar: 'يركز على وتيرة التنفيذ والانحراف عن الخطة والأبواب المالية وضغط التنفيذ المرتبط بالعقود.',
         },
-        allowedReportTypes: ['Disbursement', 'DisbursementOrders', 'Doors', 'Services', 'Executive'],
+        allowedReportTypes: ['Disbursement', 'Doors', 'Services', 'Executive'],
         detailRows: [['doors', 'contracts'], ['services', 'initiatives']],
         dashboardTableKey: 'variance',
     },
@@ -1082,15 +1079,6 @@ function buildKpis(groupContext, metrics, lang) {
 
 function buildScopeLabel(filters, lang) {
     const periodLookup = {
-        '2027-01': { en: 'Jan 2027', ar: 'يناير 2027' },
-        '2027-02': { en: 'Feb 2027', ar: 'فبراير 2027' },
-        '2027-03': { en: 'Mar 2027', ar: 'مارس 2027' },
-        '2027-04': { en: 'Apr 2027', ar: 'أبريل 2027' },
-        '2027-Q1': { en: 'Q1 2027', ar: 'الربع الأول 2027' },
-        '2027-Q2': { en: 'Q2 2027', ar: 'الربع الثاني 2027' },
-        '2027-Q3': { en: 'Q3 2027', ar: 'الربع الثالث 2027' },
-        '2027-Q4': { en: 'Q4 2027', ar: 'الربع الرابع 2027' },
-        '2027-FY': { en: 'FY2027', ar: 'السنة المالية 2027' },
         '2026-01': { en: 'Jan 2026', ar: 'يناير 2026' },
         '2026-02': { en: 'Feb 2026', ar: 'فبراير 2026' },
         '2026-03': { en: 'Mar 2026', ar: 'مارس 2026' },
@@ -1373,7 +1361,7 @@ function buildRegionalMap(groupContext, filters, scopeRows, metrics, lang) {
 }
 
 function buildTimeSeries(groupContext, filters, metrics, lang) {
-    const currentPeriod = filters.fiscalYear === 'FY2027';
+    const currentPeriod = filters.fiscalYear === 'FY2026';
     const yearStr = currentPeriod ? '2026' : '2025';
     const yearNum = currentPeriod ? '2026' : '2025';
 
@@ -1755,29 +1743,6 @@ function buildDetailTables(groupContext, lang, scopeRows, doors, services, initi
         })),
     });
 
-    tables.push({
-        title: lang === 'ar' ? 'مطابقة اعتماد - أساس المدفوعات الفعلية' : 'Etimad Reconciliation - Actual Payment Baseline',
-        sourceTable: 'SAP / ASAS ledger ↔ Etimad payment orders',
-        appliedFilters: lang === 'ar' ? 'النطاق الحالي / السنة المالية المختارة' : 'Current scope / selected fiscal year',
-        recordCount: 4,
-        note: lang === 'ar'
-            ? 'تستخدم هذه المطابقة أوامر الصرف في اعتماد كخط أساس للمدفوعات الفعلية قبل اعتماد التقرير.'
-            : 'This reconciliation uses Etimad disbursement orders as the actual-payment baseline before report approval.',
-        columns: [
-            { key: 'source', label: lang === 'ar' ? 'مصدر السجل' : 'Source record' },
-            { key: 'sapAmount', label: lang === 'ar' ? 'ساب / أساس' : 'SAP / ASAS' },
-            { key: 'etimadAmount', label: lang === 'ar' ? 'اعتماد' : 'Etimad' },
-            { key: 'difference', label: lang === 'ar' ? 'الفرق' : 'Difference' },
-            { key: 'status', label: lang === 'ar' ? 'حالة المطابقة' : 'Reconciliation status' },
-        ],
-        rows: [
-            { source: 'PAY-2027-0148', sapAmount: formatMoney(420, lang), etimadAmount: formatMoney(420, lang), difference: formatMoney(0, lang), status: lang === 'ar' ? 'مطابق' : 'Matched' },
-            { source: 'PAY-2027-0182', sapAmount: formatMoney(310, lang), etimadAmount: formatMoney(325, lang), difference: formatMoney(15, lang), status: lang === 'ar' ? 'يتطلب مراجعة' : 'Review required' },
-            { source: 'PAY-2027-0217', sapAmount: formatMoney(268, lang), etimadAmount: formatMoney(268, lang), difference: formatMoney(0, lang), status: lang === 'ar' ? 'مطابق' : 'Matched' },
-            { source: 'PAY-2027-0244', sapAmount: formatMoney(190, lang), etimadAmount: formatMoney(182, lang), difference: formatMoney(-8, lang), status: lang === 'ar' ? 'فرق توقيت' : 'Timing difference' },
-        ],
-    });
-
     if (groupContext === 'g03') {
         tables.push({
             title: lang === 'ar' ? 'الأبواب والانحراف عن الخطة' : 'Budget Doors & Plan Variance',
@@ -1852,7 +1817,7 @@ export function getDashboardData(filters) {
     const varianceRows = buildVarianceRows(doors);
     const revenueOverview = groupContext === 'g06' ? buildRevenueOverview(metrics, lang) : [];
 
-    const dashboard = {
+    return {
         groupMeta,
         scopeLabel: buildScopeLabel(filters, lang),
         managementReadout: groupContext === 'g06'
@@ -1904,14 +1869,11 @@ export function getDashboardData(filters) {
             revenueSources,
         },
     };
-
-    return applyDashboardPresentationConfig(groupContext, dashboard);
 }
 
 export function getReportOutput({ reportType, dashboardData, lang }) {
     const groupMeta = dashboardData.groupMeta;
     const reportLabel = REPORT_LABELS[reportType]?.[lang] || reportType;
-    const reportConfigType = reportType === 'DisbursementOrders' ? 'Disbursement' : reportType;
     const metrics = dashboardData.metrics || {};
     const kpiMap = Object.fromEntries((dashboardData.kpis || []).map((item) => [item.key, item]));
     const topService = [...(dashboardData.serviceAnalysis || [])].sort((a, b) => b.spentValue - a.spentValue)[0];
@@ -2044,8 +2006,8 @@ export function getReportOutput({ reportType, dashboardData, lang }) {
     };
 
     const reportOutline =
-        reportOutlineMapByGroup[groupMeta.key]?.[reportConfigType]
-        || fallbackOutlineMap[reportConfigType]
+        reportOutlineMapByGroup[groupMeta.key]?.[reportType]
+        || fallbackOutlineMap[reportType]
         || fallbackOutlineMap.Executive;
     const reportConfigs = {
         g02: {
@@ -2246,7 +2208,7 @@ export function getReportOutput({ reportType, dashboardData, lang }) {
     };
 
     const activeConfig =
-        reportConfigs[groupMeta.key]?.[reportConfigType]
+        reportConfigs[groupMeta.key]?.[reportType]
         || reportConfigs[groupMeta.key]?.Executive
         || {
             kpis: dashboardData.kpis || [],

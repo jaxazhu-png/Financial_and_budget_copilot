@@ -53,7 +53,7 @@ it; React/Recharts load from a CDN, so the first open needs internet).
 
 ## GitHub + Vercel (auto-deploy)
 
-Repo: **https://github.com/jaxazhu-png/Financial_and_budget_copilot**
+Repo: **https://github.com/liucheng77/MOMAH-finbudcop**
 Vercel project: **https://vercel.com/momah-projects/momah-finbudcop**
 
 Deployment is handled by **Vercel's GitHub integration**: once the repo is linked to the Vercel

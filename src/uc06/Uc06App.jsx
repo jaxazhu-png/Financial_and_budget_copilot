@@ -4,7 +4,6 @@ import * as echarts from 'echarts';
 import * as XLSX from 'xlsx';
 import pptxgen from 'pptxgenjs';
 import html2canvas from 'html2canvas';
-import { getChartNumber } from '../data/presentationConfig.js';
 
 if (typeof window !== 'undefined') {
     window.echarts = echarts;
@@ -26,7 +25,6 @@ import logo from './logo.jpg';
 const REPORT_TYPES = [
     { value: 'Executive', en: 'Executive Report', ar: 'التقرير التنفيذي' },
     { value: 'Disbursement', en: 'Disbursement Report', ar: 'تقرير الصرف' },
-    { value: 'DisbursementOrders', en: 'Disbursement Orders', ar: 'أوامر الصرف' },
     { value: 'Contracts', en: 'Contracts Report', ar: 'تقرير العقود' },
     { value: 'Initiatives', en: 'Initiatives Report', ar: 'تقرير المبادرات' },
     { value: 'Services', en: 'Services Report', ar: 'تقرير الخدمات' },
@@ -39,12 +37,9 @@ const ANALYSIS_LEVELS = [
     { value: 'Ministry', en: 'Ministry', ar: 'مستوى الوزارة' },
     { value: 'Amana', en: 'Amana', ar: 'مستوى الأمانة' },
     { value: 'Municipality', en: 'Municipality', ar: 'مستوى البلدية' },
-    { value: 'Initiative', en: 'Initiative', ar: 'مستوى المبادرة' },
-    { value: 'Office', en: 'Office', ar: 'مستوى المكتب' },
 ];
 
 const FISCAL_YEARS = [
-    { value: 'FY2027', en: 'FY2027', ar: 'السنة المالية 2027' },
     { value: 'FY2026', en: 'FY2026', ar: 'السنة المالية 2026' },
     { value: 'FY2025', en: 'FY2025', ar: 'السنة المالية 2025' },
 ];
@@ -56,23 +51,6 @@ const PERIOD_TYPES = [
 ];
 
 const SPECIFIC_PERIOD_OPTIONS = {
-    FY2027: {
-        Monthly: [
-            { value: '2027-01', en: 'Jan 2027', ar: 'يناير 2027' },
-            { value: '2027-02', en: 'Feb 2027', ar: 'فبراير 2027' },
-            { value: '2027-03', en: 'Mar 2027', ar: 'مارس 2027' },
-            { value: '2027-04', en: 'Apr 2027', ar: 'أبريل 2027' },
-        ],
-        Quarterly: [
-            { value: '2027-Q1', en: 'Q1 2027', ar: 'الربع الأول 2027' },
-            { value: '2027-Q2', en: 'Q2 2027', ar: 'الربع الثاني 2027' },
-            { value: '2027-Q3', en: 'Q3 2027', ar: 'الربع الثالث 2027' },
-            { value: '2027-Q4', en: 'Q4 2027', ar: 'الربع الرابع 2027' },
-        ],
-        Annually: [
-            { value: '2027-FY', en: 'FY2027', ar: 'السنة المالية 2027' },
-        ],
-    },
     FY2026: {
         Monthly: [
             { value: '2026-01', en: 'Jan 2026', ar: 'يناير 2026' },
@@ -286,7 +264,7 @@ const G02_SANKEY_NODES = {
     },
 };
 
-const G02_SANKEY_LINKS_DEFAULT = [
+const G02_SANKEY_LINKS = [
     ['chapter1', 'ministryCentral', 10.0],
     ['chapter1', 'riyadhAmana', 5.0],
     ['chapter1', 'easternAmana', 4.0],
@@ -312,11 +290,6 @@ const G02_SANKEY_LINKS_DEFAULT = [
     ['otherAmanas', 'stormwater', 40.0],
     ['otherAmanas', 'otherServices', 35.0],
 ];
-const G02_SANKEY_LINKS = G02_SANKEY_LINKS_DEFAULT.map(([source, target, value]) => [
-    source,
-    target,
-    getChartNumber('perf', 'budget_door_flow', `${source}->${target}`, 'flow', value),
-]);
 
 const DEPARTMENTS_TREE = [
     {
@@ -2687,7 +2660,7 @@ function computeDiff(oldStr, newStr) {
     return diff;
 }
 
-export default function Uc06App({ embedded = false, subDept = 'performanceAnalysis', appLang, initialTab, onBack, onConsumeJump, autoGenerate } = {}) {
+export default function Uc06App({ embedded = false, hostHeader = false, subDept = 'performanceAnalysis', appLang, initialTab, onBack, onConsumeJump, autoGenerate } = {}) {
     // When embedded inside the host app, the host's sidebar chooses which
     // sub-department to show; initialise all state to that department.
     const _SUBDEPT_META = {
@@ -2698,7 +2671,7 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
     const _meta = _SUBDEPT_META[subDept] || _SUBDEPT_META.performanceAnalysis;
     const _initGroup = _meta.group;
     const _initLang = appLang || 'ar';
-    const _initDash = getDashboardData({ groupContext: _initGroup, analysisLevel: 'Ministry', selectedAmanas: ['All'], selectedMunicipalities: ['All'], fiscalYear: 'FY2027', periodType: 'Quarterly', specificPeriod: '2027-Q2', lang: _initLang });
+    const _initDash = getDashboardData({ groupContext: _initGroup, analysisLevel: 'Ministry', selectedAmanas: ['All'], selectedMunicipalities: ['All'], fiscalYear: 'FY2026', periodType: 'Monthly', specificPeriod: '2026-04', lang: _initLang });
     const _initReportType = (_initDash && _initDash.groupMeta && _initDash.groupMeta.allowedReportTypes && _initDash.groupMeta.allowedReportTypes[0]) || 'Executive';
     const [lang, setLang] = useState(_initLang);
     const [activeTab, setActiveTab] = useState(initialTab || 'workspace'); // 默认进入工作台首页
@@ -2710,9 +2683,9 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
     const [analysisLevel, setAnalysisLevel] = useState('Ministry');
     const [selectedAmanas, setSelectedAmanas] = useState(['All']);
     const [selectedMunicipalities, setSelectedMunicipalities] = useState(['All']);
-    const [fiscalYear, setFiscalYear] = useState('FY2027');
-    const [periodType, setPeriodType] = useState('Quarterly');
-    const [specificPeriod, setSpecificPeriod] = useState('2027-Q2');
+    const [fiscalYear, setFiscalYear] = useState('FY2026');
+    const [periodType, setPeriodType] = useState('Monthly');
+    const [specificPeriod, setSpecificPeriod] = useState('2026-04');
 
     const [reportType, setReportType] = useState(_initReportType);
 
@@ -3123,9 +3096,9 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
     };
 
     const resetFilters = () => {
-        const nextFiscalYear = 'FY2027';
-        const nextPeriodType = 'Quarterly';
-        const nextSpecificPeriod = '2027-Q2';
+        const nextFiscalYear = 'FY2026';
+        const nextPeriodType = 'Monthly';
+        const nextSpecificPeriod = '2026-04';
         const nextAnalysisLevel = 'Ministry';
         const nextAmanas = ['All'];
         const nextMunicipalities = ['All'];
@@ -4074,34 +4047,6 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
         }
     };
 
-    const handleExportWord = () => {
-        const safe = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
-        const title = reportOutput?.reportLabel || (lang === 'ar' ? 'تقرير الأداء المالي' : 'Financial Performance Report');
-        const kpis = (reportOutput?.kpis || dashboardData?.kpis || []).slice(0, 8)
-            .map((kpi) => `<li><strong>${safe(kpi.label || kpi.title || kpi.key)}</strong>: ${safe(kpi.value || kpi.actual || kpi.rate || '')}</li>`)
-            .join('');
-        const narratives = reportOutput?.narratives || {};
-        const html = `<!doctype html><html><head><meta charset="utf-8"><title>${safe(title)}</title></head><body>
-            <h1>${safe(title)}</h1>
-            <p>${safe(dashboardData?.scopeLabel || '')} · ${safe(fiscalYear)} · ${safe(specificPeriod)}</p>
-            <h2>${lang === 'ar' ? 'المؤشرات الرئيسية' : 'Key metrics'}</h2><ul>${kpis}</ul>
-            <h2>${lang === 'ar' ? 'السرد التنفيذي' : 'Executive narrative'}</h2>
-            <p>${safe(narratives.synthesis || dashboardData?.aiBrief || '')}</p>
-            <pre>${safe(narratives.highlights || '')}</pre>
-            <h2>${lang === 'ar' ? 'الأسباب والمخاطر والتوصيات' : 'Causes, risks and recommendations'}</h2>
-            <p>${safe(narratives.causes || '')}</p><p>${safe(narratives.risks || '')}</p><p>${safe(narratives.recommendations || '')}</p>
-        </body></html>`;
-        const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `MOMAH_${(reportOutput?.reportLabel || 'Financial_Report').replace(/[^\w\u0600-\u06FF-]+/g, '_')}.doc`;
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        URL.revokeObjectURL(url);
-    };
-
     const recalculateDataWithTables = (updatedDashboardData, table) => {
         const parseNum = (val) => {
             if (val === undefined || val === null || val === '') return 0;
@@ -4411,7 +4356,7 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
 
         // 3. 统一重新计算折线趋势图 (timeComparison) 无论何种数据改变，基于最新的 metrics 进行折算
         if (updatedDashboardData.timeComparison?.series) {
-            const currentPeriod = fiscalYear === 'FY2027';
+            const currentPeriod = fiscalYear === 'FY2026';
             if (updatedDashboardData.groupContext === 'g06') {
                 const annualTarget = updatedDashboardData.metrics.annualTarget;
                 const collectedAmount = updatedDashboardData.metrics.collected;
@@ -5073,10 +5018,10 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
                     </div>
                 </header>)}
 
-                <main className="flex-1 overflow-y-auto bg-[#F9FAFB]">
+                <main className="flex-1 overflow-y-auto bg-[#f4f7f5]">
                     {activeTab !== 'workspace' && (
-                        <div className={`bg-white border-b border-gray-200 px-8 py-3.5 flex items-center justify-between text-start animate-fadeIn shadow-xs ${lang === 'ar' ? 'flex-row-reverse' : 'flex-row'}`} style={{ fontFamily: 'Cairo, Tajawal, sans-serif' }}>
-                            <div className={`flex items-center gap-4 ${lang === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <div className={`${hostHeader ? 'bg-transparent' : 'bg-white border-b border-gray-200 shadow-xs'} px-8 py-3.5 flex items-center ${hostHeader ? 'justify-center' : 'justify-between'} text-start animate-fadeIn ${lang === 'ar' ? 'flex-row-reverse' : 'flex-row'}`} style={{ fontFamily: 'Cairo, Tajawal, sans-serif' }}>
+                            {!hostHeader && <div className={`flex items-center gap-4 ${lang === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                                 <button
                                     onClick={() => {
                                         if (cameFromHost && onBack) { onBack(); return; }
@@ -5090,7 +5035,7 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
                                 <span className="text-xs font-bold text-gray-700 max-w-[300px] truncate">
                                     {activeFunctionLabel}
                                 </span>
-                            </div>
+                            </div>}
 
                             <div className="hidden lg:flex items-center gap-1.5 bg-gray-100 p-1 rounded-xl border border-gray-200 text-xs shadow-inner">
                                 {[
@@ -5246,14 +5191,6 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
                                                                 className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-[10px] font-bold shadow-sm transition-all"
                                                             >
                                                                 {dict.btn_publish}
-                                                            </button>
-                                                        )}
-                                                        {(report.status === 'Approved' || report.status === 'Published') && (
-                                                            <button
-                                                                onClick={handleExportWord}
-                                                                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 rounded-md text-[10px] font-bold shadow-sm transition-all"
-                                                            >
-                                                                {lang === 'zh' ? '导出 Word' : (lang === 'ar' ? 'تصدير Word' : 'Export Word')}
                                                             </button>
                                                         )}
                                                         {(report.status === 'Approved' || report.status === 'Published') && (
@@ -6188,18 +6125,6 @@ export default function Uc06App({ embedded = false, subDept = 'performanceAnalys
                                                                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                              </svg>
                                                              {lang === 'zh' ? '导出 PPTX' : (lang === 'ar' ? 'تصدير PPTX' : 'Export to PPTX')}
-                                                         </button>
-                                                         <button
-                                                             onClick={handleExportWord}
-                                                             disabled={isExportDisabled}
-                                                             title={tooltipText}
-                                                             className={`px-5 py-2.5 font-bold text-xs rounded-lg shadow transition-all ${
-                                                                 isExportDisabled
-                                                                     ? 'bg-gray-100 text-gray-300 border border-gray-200 cursor-not-allowed shadow-none'
-                                                                     : 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700'
-                                                             }`}
-                                                         >
-                                                             {lang === 'zh' ? '导出 Word' : (lang === 'ar' ? 'تصدير Word' : 'Export Word')}
                                                          </button>
                                                          <button
                                                              onClick={() => window.print()}

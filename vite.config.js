@@ -1,34 +1,5 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { execFileSync } from "node:child_process";
-import path from "node:path";
-
-const presentationWorkbook = path.resolve("config/MOMAH_Demo_Presentation_Data.xlsx");
-const pageConfigWorkbook = path.resolve("config/MOMAH_Demo_Page_Config.xlsx");
-const kpiChartConfigWorkbook = path.resolve("config/MOMAH_Demo_KPI_Chart_Config.xlsx");
-const smartQueryConfig = path.resolve("config/MOMAH_Demo_Smart_Query_Config.json");
-const watchedConfigFiles = new Set([presentationWorkbook, pageConfigWorkbook, kpiChartConfigWorkbook, smartQueryConfig]);
-
-function presentationConfigPlugin() {
-  return {
-    name: "momah-presentation-config",
-    configureServer(server) {
-      server.watcher.add([...watchedConfigFiles]);
-      server.watcher.on("change", (file) => {
-        if (!watchedConfigFiles.has(path.resolve(file))) return;
-        try {
-          execFileSync(process.execPath, ["scripts/compile-presentation-config.mjs"], {
-            cwd: process.cwd(),
-            stdio: "inherit",
-          });
-          server.ws.send({ type: "full-reload" });
-        } catch (error) {
-          server.config.logger.error("页面配置校验失败，页面继续使用上一个有效版本。");
-        }
-      });
-    },
-  };
-}
 
 // Riyadh / Arabia Standard Time (UTC+3)
 const BUILD = new Date().toLocaleString("en-CA", { timeZone: "Asia/Riyadh",
@@ -36,7 +7,7 @@ const BUILD = new Date().toLocaleString("en-CA", { timeZone: "Asia/Riyadh",
   .replace(", ", " ") + " AST";
 
 export default defineConfig({
-  plugins: [react(), presentationConfigPlugin()],
+  plugins: [react()],
   base: "/",
   define: { BUILD_STAMP: JSON.stringify(BUILD) },
   build: { outDir: "dist" },
