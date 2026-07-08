@@ -33,7 +33,7 @@ export function BudgetExecutionAiSummary({ tr, selectedRow, rowCount, onForecast
       <div className="be17-summary-side">
         <div className="be17-summary-actionbar" aria-label={tr({ en: "Budget execution next actions", ar: "الإجراءات التالية لتنفيذ الميزانية", zh: "预算执行下一步操作" })}>
           <button className="btn secondary sm" type="button" onClick={onForecast}>
-            {tr({ en: "Run rolling forecast", ar: "تشغيل التنبؤ المتجدد", zh: "运行滚动预测" })}
+            {tr({ en: "Go to UC04 forecast", ar: "الانتقال إلى تنبؤ UC04", zh: "跳转 UC04 滚动预测" })}
           </button>
           <button className="btn sm" type="button" onClick={onReport}>
             {tr({ en: "Generate report", ar: "إنشاء تقرير", zh: "生成报告" })}

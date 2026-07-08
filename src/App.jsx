@@ -4,6 +4,7 @@ import * as RC from "recharts";
 import { DataReadinessDrawer, FutureObligationsPage, G02BusinessStoryline, HousingSupportPage, ProjectCostPage, ScenarioDecisionPage, SmartQueryAuditPage } from "./group02/Group02Pages";
 import { createInitialGroup02State, mergeStoredGroup02State } from "./group02/model";
 import { BudgetExecutionAlertsPage } from "./features/budget-execution/pages/BudgetExecutionAlertsPage";
+import { BudgetExecutionFiscalSpacePage } from "./features/budget-execution/pages/BudgetExecutionFiscalSpacePage";
 import { BudgetExecutionForecastPage } from "./features/budget-execution/pages/BudgetExecutionForecastPage";
 import { BudgetExecutionMonitoringPage } from "./features/budget-execution/pages/BudgetExecutionMonitoringPage";
 import { BudgetExecutionReportPage } from "./features/budget-execution/pages/BudgetExecutionReportPage";
@@ -1107,6 +1108,10 @@ function BudgetExecutionAlertsRoute() {
 function BudgetExecutionForecastRoute() {
   const store = useStore();
   return <BudgetExecutionForecastPage store={store} />;
+}
+function BudgetExecutionFiscalSpaceRoute() {
+  const store = useStore();
+  return <BudgetExecutionFiscalSpacePage store={store} />;
 }
 function BudgetExecutionReportRoute() {
   const store = useStore();
@@ -3436,12 +3441,12 @@ const PLAZA_G03 = {
   title: { en: "Group flow — Budget Execution (G-03)", ar: "مسار المجموعة — تنفيذ الميزانية (ج-03)", zh: "组流程 — 预算执行(G-03)" },
   nodes: [
     pzNode("uc01", "rev", 0),
-    pzNode("uc17", "rev", 1),
-    pzNode("uc02", "ast", 0),
-    pzNode("uc04", "ast", 1),
-    pzNode("uc07", "ast", 2, { agents: ["Budget Optimization", "Scenario Simulation", "Rolling Forecasting"] }),
+    pzNode("uc17", "rev", 1, { open: "budexec17" }),
+    pzNode("uc02", "ast", 0, { open: "budexec-alerts" }),
+    pzNode("uc04", "ast", 1, { open: "budexec-forecast" }),
+    pzNode("uc07", "ast", 2, { open: "budexec-space", agents: ["Budget Optimization", "Scenario Simulation", "Rolling Forecasting"] }),
     pzNode("uc03", "ast", 3, { agents: ["Natural Language", "Query Interface", "Instant Insights"] }),
-    pzNode("uc10", "ast", 4, { star: 1, agents: ["Structured Reports", "Dashboard Export", "Audit Trail"] }),
+    pzNode("uc10", "ast", 4, { open: "budexec-reports", star: 1, agents: ["Structured Reports", "Dashboard Export", "Audit Trail"] }),
   ],
   intra: [["uc01", "uc17"], ["uc02", "uc04"], ["uc04", "uc07"], ["uc07", "uc03"], ["uc03", "uc10"]],
   cross: [
@@ -3590,6 +3595,7 @@ function BusinessPlaza({ model, defaultSel }) {
   const fullH = M.lanes ? (42 + M.lanes.length * 152 + 18) : 536;
   const pzOpen = (n) => {
     if (!n.open) return;
+    if (String(n.open).startsWith("budexec")) { setBackRoute(route); setDeptSub("budexec"); setRoute(n.open); return; }
     if (n.open === "alerts") { setBackRoute(route); setRoute("alerts"); return; }
     if (n.open === "perf") { setPerfJump({ tab: "dash" }); setBackRoute(route); setRoute("perf"); return; }
     if (n.open === "report") { setPerfJump({ tab: "params" }); setBackRoute(route); setRoute("rcreports"); return; }
@@ -8969,8 +8975,9 @@ function Shell() {
   else if (route === "bench17" || route === "budexec17") page = <BudgetExecutionMonitoringRoute />;
   else if (route === "budexec-alerts") page = <BudgetExecutionAlertsRoute />;
   else if (route === "budexec-forecast") page = <BudgetExecutionForecastRoute />;
+  else if (route === "budexec-space") page = <BudgetExecutionFiscalSpaceRoute />;
   else if (route === "budexec-reports") page = <BudgetExecutionReportRoute />;
-  else if (["budexec-data", "budexec-space", "budexec-query"].includes(route)) page = <BudgetExecutionResetRoute />;
+  else if (["budexec-data", "budexec-query"].includes(route)) page = <BudgetExecutionResetRoute />;
   else if (route === "g02flow") page = <FlowG02 />;
   else if (route === "g02fpaflow") page = <FlowG02Fpa />;
   else if (route === "g03flow") page = <FlowG03 />;

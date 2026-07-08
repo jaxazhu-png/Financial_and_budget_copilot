@@ -57,7 +57,7 @@ export function BudgetExecutionMonitoringPage({ store }) {
               ar: "المراقبة الآلية لتنفيذ الميزانية والمطابقة التشغيلية",
               zh: "预算执行监控与运营对账自动化",
             })}
-            <button className="al-bell" type="button" onClick={() => openRoute("budexec-alerts", "Open budget execution warnings")} title={tr({ en: "Execution warnings", ar: "تنبيهات التنفيذ", zh: "执行预警" })}>🔔 {riskCount ? <span>{riskCount}</span> : null}</button>
+            <button className="al-bell" type="button" onClick={() => openRoute("budexec-alerts", "Open G03-UC02 warning data from UC17")} title={tr({ en: "G03-UC02 execution warnings", ar: "تنبيهات التنفيذ G03-UC02", zh: "G03-UC02 执行预警" })}>🔔 {riskCount ? <span>{riskCount}</span> : null}</button>
           </div>
           <div className="wb-subt">
             {tr({
@@ -76,8 +76,8 @@ export function BudgetExecutionMonitoringPage({ store }) {
         tr={tr}
         selectedRow={selectedRow}
         rowCount={rows.length}
-        onForecast={() => openRoute("budexec-forecast", "Budget execution data sent to rolling forecast")}
-        onReport={() => openRoute("budexec-reports", "Budget execution analysis sent to report generation")}
+        onForecast={() => openRoute("budexec-forecast", "UC17 execution data is ready and sent to G03-UC04 rolling forecast")}
+        onReport={() => openRoute("budexec-reports", "UC17 execution analysis sent to UC10 report generation")}
       />
 
       <BudgetExecutionFilters

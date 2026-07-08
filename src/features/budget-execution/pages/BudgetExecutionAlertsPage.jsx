@@ -38,8 +38,8 @@ export function BudgetExecutionAlertsPage({ store }) {
       <BudgetExecutionPageHeader
         tr={tr}
         current="exceptions"
-        title={{ en: "Execution Warnings & Exception Monitoring", ar: "تنبيهات التنفيذ ومراقبة الاستثناءات", zh: "执行预警与异常监控" }}
-        subtitle={{ en: "Monitor UC17 risk budget lines and route them into exception review, transfer-path review or forecasting pressure checks.", ar: "مراقبة بنود المخاطر وتوجيهها إلى مراجعة الاستثناءات أو مسارات المناقلة أو ضغط التنبؤ.", zh: "承接 UC17 风险预算行，进入异常复核、转移路径复核或预测压力检查。" }}
+        title={{ en: "G03-UC02 Execution Warnings & Exception Monitoring", ar: "G03-UC02 تنبيهات التنفيذ ومراقبة الاستثناءات", zh: "G03-UC02 执行预警与异常监控" }}
+        subtitle={{ en: "This UC02 page is populated by the current UC17 execution warnings and keeps each alert tied to its budget line, movement stage and proposed handling path.", ar: "تُعبأ صفحة UC02 هذه من تحذيرات تنفيذ UC17 الحالية وتحافظ على ربط كل تنبيه ببند الميزانية ومرحلة الحركة ومسار المعالجة.", zh: "该 UC02 页面呈现当前 UC17 的预警数据，并保留每条预警对应的预算行、movement 阶段和建议处理路径。" }}
         alertCount={riskRows.length}
         onBack={() => openRoute("budexec17", "Back to execution ledger")}
         onNavigate={navigateStory}
