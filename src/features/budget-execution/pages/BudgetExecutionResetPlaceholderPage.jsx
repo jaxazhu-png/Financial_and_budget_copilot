@@ -3,7 +3,7 @@ import React from "react";
 const PAGE_META = {
   "budexec-data": {
     title: { en: "Unified Budget Execution Data", ar: "بيانات تنفيذ الميزانية الموحدة", zh: "预算执行统一数据" },
-    sub: { en: "The previous page implementation has been removed and is ready for the new G03 redesign.", ar: "تمت إزالة تنفيذ الصفحة السابق وهي جاهزة لإعادة تصميم G03 الجديدة.", zh: "旧页面实现已删除，等待按新的 G03 方案重做。" },
+    sub: { en: "The previous page implementation has been removed and is ready for the new budget execution redesign.", ar: "تمت إزالة تنفيذ الصفحة السابق وهي جاهزة لإعادة تصميم تنفيذ الميزانية.", zh: "旧页面实现已删除，等待按新的预算执行方案重做。" },
   },
   budexec17: {
     title: { en: "Automated Budget Execution Monitoring and Reconciliation", ar: "المراقبة الآلية لتنفيذ الميزانية والمطابقة التشغيلية", zh: "自动化预算执行监控与运营对账" },
@@ -11,7 +11,7 @@ const PAGE_META = {
   },
   "budexec-alerts": {
     title: { en: "Budget Execution Exception Handling", ar: "معالجة استثناءات تنفيذ الميزانية", zh: "预算执行异常处理" },
-    sub: { en: "The previous exception page has been removed from the G03 feature bundle.", ar: "تمت إزالة صفحة الاستثناءات السابقة من حزمة G03.", zh: "旧异常处理页已从 G03 模块中移除。" },
+    sub: { en: "The previous exception page has been removed from the budget execution feature bundle.", ar: "تمت إزالة صفحة الاستثناءات السابقة من حزمة تنفيذ الميزانية.", zh: "旧异常处理页已从预算执行模块中移除。" },
   },
   "budexec-forecast": {
     title: { en: "Future Obligations and Liquidity Pressure", ar: "الالتزامات المستقبلية وضغط السيولة", zh: "未来义务与流动性压力" },
@@ -32,7 +32,7 @@ const PAGE_META = {
 };
 
 /**
- * Temporary clean slate for G03 UC routes after removing the old Budget Execution implementation.
+ * Temporary clean slate after removing the old Budget Execution implementation.
  */
 export function BudgetExecutionResetPlaceholderPage({ store }) {
   const { tr, route, setRoute, setBackRoute } = store;
@@ -61,13 +61,13 @@ export function BudgetExecutionResetPlaceholderPage({ store }) {
 
       <section className="card" style={{ padding: 18 }}>
         <div className="dw-eyebrow g" style={{ marginBottom: 8 }}>
-          {tr({ en: "G03 rebuild placeholder", ar: "عنصر مؤقت لإعادة بناء G03", zh: "G03 重做占位" })}
+          {tr({ en: "Budget execution rebuild placeholder", ar: "عنصر مؤقت لإعادة بناء تنفيذ الميزانية", zh: "预算执行重做占位" })}
         </div>
         <p style={{ margin: 0, color: "var(--muted)", lineHeight: 1.6 }}>
           {tr({
-            en: "Old G03 UC page code has been removed. Use this route as the mount point for the new implementation.",
-            ar: "تمت إزالة كود صفحات حالات استخدام G03 القديم. استخدم هذا المسار كنقطة تركيب للتنفيذ الجديد.",
-            zh: "当前 G03 旧 UC 页面代码已删除。后续可以直接基于这个路由挂载新的页面实现。",
+            en: "Old budget execution page code has been removed. Use this route as the mount point for the new implementation.",
+            ar: "تمت إزالة كود صفحات تنفيذ الميزانية القديم. استخدم هذا المسار كنقطة تركيب للتنفيذ الجديد.",
+            zh: "当前预算执行旧页面代码已删除。后续可以直接基于这个路由挂载新的页面实现。",
           })}
         </p>
       </section>

@@ -1,13 +1,13 @@
 import React from "react";
 
 export const BUDGET_EXECUTION_FLOW_STEPS = [
-  { key: "data", route: "budexec-data", code: "UC01", label: { en: "Data unification", ar: "توحيد البيانات", zh: "数据统一" } },
-  { key: "ledger", route: "budexec17", code: "UC17", label: { en: "Budget execution tracking", ar: "تتبع تنفيذ الميزانية", zh: "预算执行情况跟踪" } },
-  { key: "exceptions", route: "budexec-alerts", code: "UC02", label: { en: "Deviation detection", ar: "كشف الانحرافات", zh: "偏差检测" } },
-  { key: "forecast", route: "budexec-forecast", code: "UC04", label: { en: "Forecast", ar: "التنبؤ", zh: "预测" } },
-  { key: "space", route: "budexec-space", code: "UC07", label: { en: "Budget planning", ar: "تخطيط الميزانية", zh: "预算规划" } },
-  { key: "query", route: "budexec-query", code: "UC03", label: { en: "Smart query", ar: "الاستعلام الذكي", zh: "智能查询" } },
-  { key: "reports", route: "budexec-reports", code: "UC10", label: { en: "Reports", ar: "التقارير", zh: "报告" } },
+  { key: "data", route: "budexec-data", label: { en: "Data unification", ar: "توحيد البيانات", zh: "数据统一" } },
+  { key: "ledger", route: "budexec17", label: { en: "Execution ledger", ar: "دفتر التنفيذ", zh: "执行台账" } },
+  { key: "exceptions", route: "budexec-alerts", label: { en: "Deviation detection", ar: "كشف الانحرافات", zh: "偏差检测" } },
+  { key: "forecast", route: "budexec-forecast", label: { en: "Rolling forecast", ar: "التنبؤ المتجدد", zh: "滚动预测" } },
+  { key: "space", route: "budexec-space", label: { en: "Fiscal space", ar: "الحيز المالي", zh: "财政空间" } },
+  { key: "query", route: "budexec-query", label: { en: "Smart query", ar: "الاستعلام الذكي", zh: "智能查询" } },
+  { key: "reports", route: "budexec-reports", label: { en: "Report generation", ar: "إنشاء التقارير", zh: "报告生成" } },
 ];
 
 /**
@@ -33,7 +33,7 @@ export function BudgetExecutionStoryline({ tr, onNavigate, current = "ledger" })
               className={`wb-cpill be17-cpill ${position}`}
               type="button"
               onClick={() => onNavigate(step.route)}
-              title={`${step.code} · ${tr(step.label)}`}
+              title={tr(step.label)}
             >
               <span className="wb-cpos">{tr(positionLabel[position])}</span>
               {position === "here" ? "★ " : ""}{tr(step.label)}

@@ -28,7 +28,7 @@ const classifyCandidate = (row) => {
   }
   if (row.status === "risk" && row.metrics.available < 120) {
     return {
-      type: { en: "G04 liquidity pressure linked", ar: "مرتبط بضغط سيولة G04", zh: "关联 G04 流动性压力" },
+      type: { en: "Financial entitlements liquidity pressure linked", ar: "مرتبط بضغط سيولة الاستحقاقات المالية", zh: "关联财务权益流动性压力" },
       tone: "pressure",
       path: { en: "Freeze unverified free cost and route to forecast pressure review.", ar: "تجميد التكلفة الحرة وتمريرها لمراجعة ضغط التنبؤ.", zh: "冻结未核验自由成本并送入预测压力复核。" },
     };
@@ -58,7 +58,7 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
   };
   const navigateStory = (targetRoute) => {
     if (targetRoute === "budexec-space") return;
-    openRoute(targetRoute, `G03-UC07 opened ${targetRoute}`);
+    openRoute(targetRoute, `Fiscal-space planning opened ${targetRoute}`);
   };
 
   const budgetCeiling = sumMetric("budget");
@@ -86,9 +86,9 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
   const weightLabels = [
     ["available", { en: "Available idle balance", ar: "الرصيد الخامل المتاح", zh: "可用闲置余额" }, 100],
     ["commitment", { en: "Committed reserve protection", ar: "حماية احتياطي الالتزام", zh: "承诺准备保护" }, 100],
-    ["forecast", { en: "UC04 forecast pressure", ar: "ضغط تنبؤ UC04", zh: "UC04 预测压力" }, 100],
+    ["forecast", { en: "Rolling forecast pressure", ar: "ضغط التنبؤ المتجدد", zh: "滚动预测压力" }, 100],
     ["risk", { en: "Audit / timing risk", ar: "مخاطر التدقيق والتوقيت", zh: "审计/时间差风险" }, 100],
-    ["liquidity", { en: "G04 liquidity signal", ar: "إشارة سيولة G04", zh: "G04 流动性信号" }, 100],
+    ["liquidity", { en: "Financial entitlements liquidity signal", ar: "إشارة سيولة الاستحقاقات المالية", zh: "财务权益流动性信号" }, 100],
     ["urgency", { en: "Payment urgency", ar: "إلحاح الدفع", zh: "付款紧迫度" }, 100],
   ];
   const setSlider = (key, value) => {
@@ -121,9 +121,9 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
   const detailTotal = detailRows.reduce((total, item) => total + item.allocation, 0);
   const allocationDelta = adjustedTransfer - activePlan.amount;
   const aiSummary = {
-    en: `Current plan "${tr(activePlan.name)}" reallocates ${formatSar(adjustedTransfer)} from UC17 execution balances with ${reserve}% reserve. Key change: ${formatSar(allocationDelta)} vs the base scenario. Risk items: ${deficitCount ? "1 funding gap remains" : "no funding gap"}${paperRisk ? ", 1 paper-surplus line turns tight under rolling forecast" : ", rolling forecast remains covered"}. Recommendation: ${deficitCount ? "fund the gap from surplus before approval" : "submit as an independent scenario copy after review"}.`,
+    en: `Current plan "${tr(activePlan.name)}" reallocates ${formatSar(adjustedTransfer)} from execution ledger balances with ${reserve}% reserve. Key change: ${formatSar(allocationDelta)} vs the base scenario. Risk items: ${deficitCount ? "1 funding gap remains" : "no funding gap"}${paperRisk ? ", 1 paper-surplus line turns tight under rolling forecast" : ", rolling forecast remains covered"}. Recommendation: ${deficitCount ? "fund the gap from surplus before approval" : "submit as an independent scenario copy after review"}.`,
     ar: `تعيد الخطة الحالية توزيع ${formatSar(adjustedTransfer)} مع احتياطي ${reserve}%.`,
-    zh: `当前方案「${tr(activePlan.name)}」从 UC17 执行余额中重分配 **${formatSar(adjustedTransfer)}**，储备比例 **${reserve}%**。**关键变化**：相对基础方案 ${allocationDelta >= 0 ? "+" : ""}${formatSar(allocationDelta)}；权重侧重 **${focusWeights.join(" / ")}**。**风险项**：${deficitCount ? "仍有 1 个资金缺口" : "无资金缺口"}${paperRisk ? "，1 条纸面盈余在滚动预测下转紧张" : "，滚动预测下仍可覆盖"}。**优化建议**：${deficitCount ? "先从盈余资金批量补足缺口，再提交审批" : "复核后作为独立场景提交审批"}。`,
+    zh: `当前方案「${tr(activePlan.name)}」从执行台账余额中重分配 **${formatSar(adjustedTransfer)}**，储备比例 **${reserve}%**。**关键变化**：相对基础方案 ${allocationDelta >= 0 ? "+" : ""}${formatSar(allocationDelta)}；权重侧重 **${focusWeights.join(" / ")}**。**风险项**：${deficitCount ? "仍有 1 个资金缺口" : "无资金缺口"}${paperRisk ? "，1 条纸面盈余在滚动预测下转紧张" : "，滚动预测下仍可覆盖"}。**优化建议**：${deficitCount ? "先从盈余资金批量补足缺口，再提交审批" : "复核后作为独立场景提交审批"}。`,
   };
 
   return (
@@ -131,11 +131,11 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
       <BudgetExecutionPageHeader
         tr={tr}
         current="space"
-        title={{ en: "G03-UC07 Budget Planning, Ceiling Allocation & Fiscal Space", ar: "G03-UC07 تخطيط الميزانية وتوزيع السقف والحيز المالي", zh: "G03-UC07 预算规划、上限分配与财务空间" }}
-        subtitle={{ en: "Real-time fiscal-space update from UC17 execution facts, UC04 rolling forecast and UC02 exception status.", ar: "تحديث فوري للحيز المالي من UC17 وUC04 وUC02.", zh: "基于 UC17 执行事实、UC04 滚动预测和 UC02 异常状态，实时更新财政空间、上限余额与可转移预算候选集合。" }}
+        title={{ en: "Budget Planning, Ceiling Allocation & Fiscal Space", ar: "تخطيط الميزانية وتوزيع السقف والحيز المالي", zh: "预算规划、上限分配与财务空间" }}
+        subtitle={{ en: "Real-time fiscal-space update from execution facts, rolling forecast and exception status.", ar: "تحديث فوري للحيز المالي من حقائق التنفيذ والتنبؤ والاستثناءات.", zh: "基于执行事实、滚动预测和异常状态，实时更新财政空间、上限余额与可转移预算候选集合。" }}
         alertCount={riskRows.length}
         onBack={() => openRoute("budexec17", "Back to execution ledger")}
-        onAlerts={() => openRoute("budexec-alerts", "Open UC02 warning status")}
+        onAlerts={() => openRoute("budexec-alerts", "Open warning status")}
         onNavigate={navigateStory}
       />
 
@@ -152,13 +152,13 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
         <div className="g03-kpi good"><span>{tr({ en: "Available fiscal space", ar: "الحيز المالي المتاح", zh: "可用资金空间" })}</span><b>{formatSar(availableFiscalSpace)}</b><small>{tr({ en: "ceiling minus deductions, liabilities and payment obligations", ar: "السقف بعد الخصومات والالتزامات", zh: "上限扣除占用后余额" })}</small></div>
         <div className="g03-kpi"><span>{tr({ en: "System available balance", ar: "الرصيد المتاح بالنظام", zh: "系统可用余额" })}</span><b>{formatSar(systemAvailable)}</b><small>{tr({ en: "before commitment-quality classification", ar: "قبل تصنيف جودة الالتزام", zh: "未扣除承诺质量前" })}</small></div>
         <div className="g03-kpi warn"><span>{tr({ en: "Transfer candidate pool", ar: "مجمع مرشحي المناقلة", zh: "可转移候选池" })}</span><b>{formatSar(transferPool)}</b><small>{candidates.length} {tr({ en: "candidate budget lines", ar: "بنود مرشحة", zh: "条候选预算行" })}</small></div>
-        <div className="g03-kpi bad"><span>{tr({ en: "Forecast / liquidity pressure", ar: "ضغط التنبؤ والسيولة", zh: "预测/流动性压力" })}</span><b>{formatSar(FORECAST_PRESSURE)}</b><small>UC04 + G04 {tr({ en: "linked signal", ar: "إشارة مرتبطة", zh: "关联信号" })}</small></div>
+        <div className="g03-kpi bad"><span>{tr({ en: "Forecast / liquidity pressure", ar: "ضغط التنبؤ والسيولة", zh: "预测/流动性压力" })}</span><b>{formatSar(FORECAST_PRESSURE)}</b><small>{tr({ en: "forecast + liquidity linked signal", ar: "إشارة مرتبطة بالتنبؤ والسيولة", zh: "预测与流动性关联信号" })}</small></div>
       </div>
 
       <BudgetExecutionSection
         tr={tr}
         title={{ en: "Candidate budget lines", ar: "بنود الميزانية المرشحة", zh: "候选预算行列表" }}
-        sub={{ en: "Available-but-idle lines, long commitments without invoice/payment, and G04 liquidity-pressure linked rows.", ar: "بنود متاحة وخاملة أو التزامات طويلة أو مرتبطة بضغط G04.", zh: "展示可用但闲置、长期承诺无发票/付款、G04 流动性压力关联的预算行，并给出建议转移路径。" }}
+        sub={{ en: "Available-but-idle lines, long commitments without invoice/payment, and liquidity-pressure linked rows.", ar: "بنود متاحة وخاملة أو التزامات طويلة أو مرتبطة بضغط السيولة.", zh: "展示可用但闲置、长期承诺无发票/付款、流动性压力关联的预算行，并给出建议转移路径。" }}
         agent={{ en: "Agent: Fiscal Space Control Agent", ar: "الوكيل: مراقبة الحيز المالي", zh: "Agent：Fiscal Space Control Agent" }}
       >
         <div className="be17-table-wrap compact">
@@ -199,9 +199,9 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
           <div className="bp-plan-ai-h"><span className="bp-plan-ai-ic">✦</span>{tr({ en: "AI plan interpretation", ar: "تفسير خطة الذكاء", zh: "AI 方案解读" })}</div>
           <div className="bp-plan-ai-b">
             {tr({
-              en: `${tr(activePlan.name)} uses ${activePlan.source} and emphasizes ${focusWeights.join(" / ")}. It covers the UC04 ${formatSar(FORECAST_PRESSURE)} pressure with ${formatSar(Math.max(postTransferSpace, 0))} post-transfer buffer.`,
+              en: `${tr(activePlan.name)} uses ${activePlan.source} and emphasizes ${focusWeights.join(" / ")}. It covers the rolling-forecast ${formatSar(FORECAST_PRESSURE)} pressure with ${formatSar(Math.max(postTransferSpace, 0))} post-transfer buffer.`,
               ar: `الخطة تستخدم ${activePlan.source}.`,
-              zh: `「${tr(activePlan.name)}」使用 ${activePlan.source} 作为资金来源，权重侧重 ${focusWeights.join(" / ")}。该方案覆盖 UC04 的 ${formatSar(FORECAST_PRESSURE)} 压力，并形成 ${formatSar(Math.max(postTransferSpace, 0))} 的转移后缓冲。`,
+              zh: `「${tr(activePlan.name)}」使用 ${activePlan.source} 作为资金来源，权重侧重 ${focusWeights.join(" / ")}。该方案覆盖滚动预测的 ${formatSar(FORECAST_PRESSURE)} 压力，并形成 ${formatSar(Math.max(postTransferSpace, 0))} 的转移后缓冲。`,
             })}
           </div>
         </div>
@@ -258,7 +258,7 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
         {status === "submitted" ? (
           <div className="bp-next">
             <div className="bp-next-h">✓ {tr({ en: "Submitted for approval", ar: "قُدّم للاعتماد", zh: "已提交审批" })}</div>
-            <div className="bp-next-b">{tr({ en: "Scenario G03-UC07-SCN-2026-Q2 routed to approval owners with UC17/UC04/UC02 evidence attached.", ar: "تم توجيه السيناريو للاعتماد.", zh: "场景 G03-UC07-SCN-2026-Q2 已提交给审批负责人，并附带 UC17/UC04/UC02 证据。" })}</div>
+            <div className="bp-next-b">{tr({ en: "Scenario BUDGET-SPACE-SCN-2026-Q2 routed to approval owners with execution, forecast and warning evidence attached.", ar: "تم توجيه السيناريو للاعتماد مع أدلة التنفيذ والتنبؤ والتحذيرات.", zh: "场景 BUDGET-SPACE-SCN-2026-Q2 已提交给审批负责人，并附带执行、预测与预警证据。" })}</div>
             <div className="bp-next-owner">👤 Aisha Al-Dosari · {tr({ en: "Budget Execution Planner", ar: "مخططة تنفيذ الميزانية", zh: "预算执行规划员" })} · 📞 +966 50 771 3329</div>
             <button className="dw-btn" type="button" onClick={() => setStatus("draft")}>↺ {tr({ en: "Recall to draft", ar: "استرجاع", zh: "撤回为草稿" })}</button>
           </div>
@@ -275,10 +275,10 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
             </div>
             {deficitCount > 0 && <div className="bp-defwarn">⚠ {tr({ en: "Deficit present — submission blocked. Fund the gap from surplus, then submit.", ar: "يوجد عجز — التقديم محظور.", zh: "存在缺口 — 提交被阻止。请先从盈余资金补足缺口，再提交。" })}</div>}
             <div className="bp-act-btns">
-              <button className="dw-btn primary" type="button" disabled={deficitCount > 0} onClick={() => { setStatus("submitted"); pushLog?.({ en: "G03-UC07 fiscal-space scenario submitted", ar: "تم تقديم سيناريو UC07", zh: "G03-UC07 财政空间方案已提交审批" }); }}>{tr({ en: "Submit for approval", ar: "تقديم للاعتماد", zh: "提交审批" })}</button>
-              <button className="dw-btn" type="button" onClick={() => setDone({ en: "Draft saved · G03-UC07-DRAFT", ar: "حُفظت المسودة", zh: "草稿已保存 · G03-UC07-DRAFT" })}>{tr({ en: "Save draft", ar: "حفظ مسودة", zh: "保存草稿" })}</button>
+              <button className="dw-btn primary" type="button" disabled={deficitCount > 0} onClick={() => { setStatus("submitted"); pushLog?.({ en: "Fiscal-space scenario submitted", ar: "تم تقديم سيناريو الحيز المالي", zh: "财政空间方案已提交审批" }); }}>{tr({ en: "Submit for approval", ar: "تقديم للاعتماد", zh: "提交审批" })}</button>
+              <button className="dw-btn" type="button" onClick={() => setDone({ en: "Draft saved · BUDGET-SPACE-DRAFT", ar: "حُفظت المسودة", zh: "草稿已保存 · BUDGET-SPACE-DRAFT" })}>{tr({ en: "Save draft", ar: "حفظ مسودة", zh: "保存草稿" })}</button>
               <button className="dw-btn" type="button" onClick={() => setDone({ en: "Plan exported (PDF/Excel)", ar: "صُدّرت", zh: "方案已导出(PDF/Excel)" })}>{tr({ en: "Export plan", ar: "تصدير", zh: "导出方案" })}</button>
-              <button className="dw-btn primary" type="button" onClick={() => openRoute("budexec-reports", "UC07 financial impact report generated")}>{tr({ en: "Generate financial impact report", ar: "إنشاء تقرير الأثر المالي", zh: "生成财务影响报告" })}</button>
+              <button className="dw-btn primary" type="button" onClick={() => openRoute("budexec-reports", "Fiscal-space financial impact report generated")}>{tr({ en: "Generate financial impact report", ar: "إنشاء تقرير الأثر المالي", zh: "生成财务影响报告" })}</button>
             </div>
             {done && <div className="bp-done">✓ {tr(done)}</div>}
           </>

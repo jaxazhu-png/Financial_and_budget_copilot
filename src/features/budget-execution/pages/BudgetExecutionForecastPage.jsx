@@ -103,8 +103,8 @@ const actualRows = [
   { period: "Q3'26", forecast: 1.84, actual: 1.91 },
 ];
 const changeRows = [
-  { type: "new", name: fcT("UC17 execution rows loaded into forecast", "تحميل بنود UC17 في التنبؤ", "UC17 执行行已装入预测"), amount: 0.42, why: fcT("latest SAP/Asas movement refresh", "آخر تحديث للحركات", "最新 SAP/Asas movement 刷新") },
-  { type: "mod", name: fcT("Stale commitment probability adjusted", "تعديل احتمال الالتزامات القديمة", "长期承诺概率已调整"), amount: 0.18, why: fcT("UC02 warning classification", "تصنيف تحذيرات UC02", "UC02 预警分类") },
+  { type: "new", name: fcT("Execution rows loaded into forecast", "تحميل بنود التنفيذ في التنبؤ", "执行行已装入预测"), amount: 0.42, why: fcT("latest SAP/Asas movement refresh", "آخر تحديث للحركات", "最新 SAP/Asas movement 刷新") },
+  { type: "mod", name: fcT("Stale commitment probability adjusted", "تعديل احتمال الالتزامات القديمة", "长期承诺概率已调整"), amount: 0.18, why: fcT("warning classification", "تصنيف التحذيرات", "预警分类") },
   { type: "cancel", name: fcT("Idle balance excluded from hard need", "استبعاد الرصيد الخامل", "闲置余额从硬需求中剔除"), amount: -0.09, why: fcT("available-funds review", "مراجعة الأموال المتاحة", "可用资金复核") },
 ];
 const changeTone = { new: "n", mod: "m", cancel: "c" };
@@ -168,8 +168,7 @@ function buildForecast(period, commitmentType, actions) {
 }
 
 /**
- * G03 forecast page keeps the Planning Department commitment-forecast logic,
- * with the underlying records and explanations replaced by UC17 execution data.
+ * Forecast page keeps the commitment-forecast logic with execution data.
  */
 export function BudgetExecutionForecastPage({ store }) {
   const { tr, route, setRoute, setBackRoute, setDeptSub, pushLog } = store;
@@ -216,7 +215,7 @@ export function BudgetExecutionForecastPage({ store }) {
   const switchToPlanningForecast = () => {
     setBackRoute(route || "budexec-forecast");
     setDeptSub?.("plan");
-    pushLog?.({ en: "Switched perspective from G03 execution forecast to Planning Department funding forecast", ar: "تم التبديل إلى تنبؤ تمويل قسم التخطيط", zh: "视角已从 G03 执行预测切换到规划部门资金预测" });
+    pushLog?.({ en: "Switched perspective from execution forecast to Planning Department funding forecast", ar: "تم التبديل إلى تنبؤ تمويل قسم التخطيط", zh: "视角已从执行预测切换到规划部门资金预测" });
     setRoute("plnforecast");
   };
 
@@ -245,7 +244,7 @@ export function BudgetExecutionForecastPage({ store }) {
   const highImpactRows = processFiltered.filter((row) => row.amount >= 0.3);
   const approvedShown = approvedOnlyNoPlan ? noPlanRows : approvedFiltered;
   const processShown = processOnlyHigh ? highImpactRows : processFiltered;
-  const dataSources = ["UC17 ledger", "SAP/Asas movement", "Etimad invoices", plansMode === "complete" ? "Payment Plans" : "Payment Plans(gap)", "UC02 warnings", "Availability report"];
+  const dataSources = ["Execution ledger", "SAP/Asas movement", "Etimad invoices", plansMode === "complete" ? "Payment Plans" : "Payment Plans(gap)", "Warning queue", "Availability report"];
   const idiqAmount = approvedRows.filter((row) => row.type === "idiq").reduce((total, row) => total + row.amount, 0);
   const totalApprovedAmount = approvedRows.reduce((total, row) => total + row.amount, 0);
   const idiqShare = totalApprovedAmount ? idiqAmount / totalApprovedAmount : 0;
@@ -271,12 +270,12 @@ export function BudgetExecutionForecastPage({ store }) {
   const refresh = () => {
     setRefreshTs("2026-07-07 " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
     setDraft("draft");
-    pushLog?.({ en: "G03-UC04 rolling forecast refreshed from UC17 execution data", ar: "تم تحديث تنبؤ G03-UC04", zh: "G03-UC04 已基于 UC17 执行数据刷新滚动预测" });
-    setActionMessage(fcT("Rolling forecast refreshed from UC17 — actuals reconciled, future demand re-projected and reason documented.", "تم تحديث التنبؤ من UC17.", "滚动预测已从 UC17 刷新：实际数已对账，未来需求已重算，并记录原因。"));
+    pushLog?.({ en: "Rolling forecast refreshed from execution data", ar: "تم تحديث التنبؤ من بيانات التنفيذ", zh: "已基于执行数据刷新滚动预测" });
+    setActionMessage(fcT("Rolling forecast refreshed from execution data — actuals reconciled, future demand re-projected and reason documented.", "تم تحديث التنبؤ من بيانات التنفيذ.", "滚动预测已从执行数据刷新：实际数已对账，未来需求已重算，并记录原因。"));
   };
   const submit = () => {
     setDraft("submitted");
-    pushLog?.({ en: "G03-UC04 forecast v3 submitted for approval", ar: "تم تقديم تنبؤ G03-UC04", zh: "G03-UC04 预测 v3 已提交审批" });
+    pushLog?.({ en: "Rolling forecast v3 submitted for approval", ar: "تم تقديم التنبؤ المتجدد", zh: "滚动预测 v3 已提交审批" });
     setActionMessage(fcT("Forecast v3 submitted — no financial commitment is created without human approval.", "تم تقديم التنبؤ دون إنشاء التزام مالي.", "预测 v3 已提交审批 —— 未经人工批准不产生任何财务承诺。"));
   };
   const applyMitigation = (id, action) => {
@@ -293,7 +292,7 @@ export function BudgetExecutionForecastPage({ store }) {
     } else if (key === "gap") {
       setPeriod("month");
     }
-    setFlash(fcT("Filtered and highlighted the related UC17 commitments.", "تمت تصفية الالتزامات المرتبطة.", "已按该信号筛选并高亮相关 UC17 承诺。"), "L");
+    setFlash(fcT("Filtered and highlighted the related execution commitments.", "تمت تصفية الالتزامات المرتبطة.", "已按该信号筛选并高亮相关执行承诺。"), "L");
   };
   const clearType = () => setSelectedType(null);
   const typeName = (key) => tr((types.find((type) => type.key === key) || types[0]).name);
@@ -302,7 +301,7 @@ export function BudgetExecutionForecastPage({ store }) {
       ? { icon: "⚠", key: "gap", title: fcT("Ceiling pressure ahead", "ضغط السقف", "上限压力预警"), detail: fcT(`Need exceeds ceiling from ${monthLabels[firstGapMonth.index]} · peak ${amountB(peakMonth.gap)} at ${monthLabels[peakMonth.index]}`, `الحاجة تتجاوز السقف من ${monthLabels[firstGapMonth.index]}`, `自 ${monthLabels[firstGapMonth.index]} 起需求超上限 · 峰值 ${amountB(peakMonth.gap)}(${monthLabels[peakMonth.index]})`) }
       : { icon: "✓", key: "gap", title: fcT("Within ceiling", "ضمن السقف", "上限内"), detail: fcT("Expected need stays within capacity.", "الحاجة ضمن القدرة.", "预期需求全程在上限内。") },
     { icon: "◎", key: "conv", title: fcT("Conversion risk", "خطر التحويل", "转化风险"), detail: fcT("IDIQ and stale commitments are treated as probabilistic expectations.", "تُحسب التزامات IDIQ باحتمال.", "IDIQ 与长期承诺按概率化预期计入。") },
-    { icon: "◆", key: "market", title: fcT("Execution-cost signal", "إشارة تكلفة التنفيذ", "执行成本信号"), detail: fcT("UC17 risk rows lift cost-reimbursement pressure in the forecast.", "بنود مخاطر UC17 ترفع ضغط التكلفة.", "UC17 风险行推高成本补偿类压力。") },
+    { icon: "◆", key: "market", title: fcT("Execution-cost signal", "إشارة تكلفة التنفيذ", "执行成本信号"), detail: fcT("Risk rows lift cost-reimbursement pressure in the forecast.", "بنود المخاطر ترفع ضغط التكلفة.", "风险行推高成本补偿类压力。") },
   ];
   const recommendations = [
     { key: "defer", title: fcT("Modify payment plan (smooth peak)", "تعديل خطة الدفع", "调整支付计划(平滑峰值)"), label: fcT("Payment plan modified — near-term demand deferred.", "تم تعديل الخطة.", "已调整支付计划 —— 近期需求后移。") },
@@ -325,12 +324,12 @@ export function BudgetExecutionForecastPage({ store }) {
               <button className="al-bell" type="button" onClick={() => openRoute("budexec-alerts", "Open execution warning data")} title={tr({ en: "Exceptions", ar: "الاستثناءات", zh: "异常" })}>🔔 {riskRows.length ? <span>{riskRows.length}</span> : null}</button>
             </div>
             <div className="wb-subt">
-              <span className="uc-tag">G03-UC04</span>
+              <span className="uc-tag">{tr({ en: "Execution-backed forecast", ar: "تنبؤ مدعوم بالتنفيذ", zh: "执行驱动预测" })}</span>
               {" "}
               {tr({
-                en: "Forecasting Future Commitments and Needs · seeded by UC17 execution actuals",
-                ar: "التنبؤ بالالتزامات والاحتياجات المستقبلية · من فعليات UC17",
-                zh: "承诺与未来需求预测 · 基于 UC17 执行实际数",
+                en: "Forecasting Future Commitments and Needs · seeded by execution actuals",
+                ar: "التنبؤ بالالتزامات والاحتياجات المستقبلية · من فعليات التنفيذ",
+                zh: "承诺与未来需求预测 · 基于执行实际数",
               })}
             </div>
           </div>
@@ -352,7 +351,7 @@ export function BudgetExecutionForecastPage({ store }) {
             <button className="sc-mini primary" type="button" onClick={submit} disabled={draft === "submitted"}>{draft === "submitted" ? "✓ " + tr({ en: "Submitted", ar: "قُدّم", zh: "已提交" }) : tr({ en: "Submit for approval", ar: "تقديم", zh: "提交审批" })}</button>
           </span>
         </div>
-        {plansMode === "missing" && <div className="fc-sources"><span className="fc-lowconf">⚠ {tr({ en: "Payment plans missing — model falls back to UC17 actuals and historical timing, confidence lowered.", ar: "خطط الدفع مفقودة — ثقة منخفضة.", zh: "付款计划缺失 —— 回退 UC17 实际数和历史节奏，置信度已下调。" })}</span></div>}
+        {plansMode === "missing" && <div className="fc-sources"><span className="fc-lowconf">⚠ {tr({ en: "Payment plans missing — model falls back to execution actuals and historical timing, confidence lowered.", ar: "خطط الدفع مفقودة — ثقة منخفضة.", zh: "付款计划缺失 —— 回退执行实际数和历史节奏，置信度已下调。" })}</span></div>}
 
         <div className="wb-actbar">
           <span className="bp-agent wb-ab-agent">{tr({ en: "Financial Forecasting Agent", ar: "وكيل التنبؤ المالي", zh: "财务预测智能体" })}</span>
@@ -361,13 +360,13 @@ export function BudgetExecutionForecastPage({ store }) {
             <div className="wb-ab-tt">
               <div>
                 <span className="wb-ab-lab">{tr({ en: "AI INSIGHT & NEXT ACTIONS", ar: "رؤى وإجراءات", zh: "AI 洞察与后续行动" })}</span>
-                <span className="wb-ab-meta">UC17 → UC04 · {tr({ en: "Forecasting + Rolling + Market Trends", ar: "تنبؤ + متجدد + سوق", zh: "预测 + 滚动 + 市场趋势" })} · {tr({ en: "confidence", ar: "الثقة", zh: "置信度" })} {confidencePct}%</span>
+                <span className="wb-ab-meta">{tr({ en: "Execution ledger → Rolling forecast", ar: "دفتر التنفيذ ← التنبؤ المتجدد", zh: "执行台账 → 滚动预测" })} · {tr({ en: "Forecasting + Rolling + Market Trends", ar: "تنبؤ + متجدد + سوق", zh: "预测 + 滚动 + 市场趋势" })} · {tr({ en: "confidence", ar: "الثقة", zh: "置信度" })} {confidencePct}%</span>
               </div>
               <div className="wb-ab-insight">
                 {tr({
-                  en: `UC17 execution data is ready: ${UC17_BUDGET_ROWS.length} budget lines, ${formatSar(committed)} committed, ${formatSar(invoiced)} invoiced, ${formatSar(paid)} paid and ${formatSar(available)} available. Expected need ${amountB(annualNeed)}/yr vs ceiling ${amountB(forecastCeiling)}. ${needOverCeiling ? "Need exceeds ceiling — early warning." : "Need stays within ceiling."} Existing ${amountB(existing)}, potential ${amountB(potential)} @ ${softConversion}%. ${appliedCount ? `${appliedCount} response(s) applied, gap now ${amountB(fundingGap)}.` : "Response paths on the right."}`,
-                  ar: `بيانات UC17 جاهزة. الحاجة المتوقعة ${amountB(annualNeed)} مقابل السقف ${amountB(forecastCeiling)}.`,
-                  zh: `UC17 执行数据已就绪：${UC17_BUDGET_ROWS.length} 条预算行、已承诺 ${formatSar(committed)}、收票 ${formatSar(invoiced)}、已付款 ${formatSar(paid)}、可用资金 ${formatSar(available)}。预期需求 ${amountB(annualNeed)}/年 vs 上限 ${amountB(forecastCeiling)}。${needOverCeiling ? "需求超上限 —— 提前预警。" : "需求在上限内。"}已有 ${amountB(existing)}、潜在(概率化) ${amountB(potential)} @ ${softConversion}%。${appliedCount ? `已应用 ${appliedCount} 项应对，当前缺口 ${amountB(fundingGap)}。` : "右侧为应对路径。"}`,
+                  en: `Execution data is ready: ${UC17_BUDGET_ROWS.length} budget lines, ${formatSar(committed)} committed, ${formatSar(invoiced)} invoiced, ${formatSar(paid)} paid and ${formatSar(available)} available. Expected need ${amountB(annualNeed)}/yr vs ceiling ${amountB(forecastCeiling)}. ${needOverCeiling ? "Need exceeds ceiling — early warning." : "Need stays within ceiling."} Existing ${amountB(existing)}, potential ${amountB(potential)} @ ${softConversion}%. ${appliedCount ? `${appliedCount} response(s) applied, gap now ${amountB(fundingGap)}.` : "Response paths on the right."}`,
+                  ar: `بيانات التنفيذ جاهزة. الحاجة المتوقعة ${amountB(annualNeed)} مقابل السقف ${amountB(forecastCeiling)}.`,
+                  zh: `执行数据已就绪：${UC17_BUDGET_ROWS.length} 条预算行、已承诺 ${formatSar(committed)}、收票 ${formatSar(invoiced)}、已付款 ${formatSar(paid)}、可用资金 ${formatSar(available)}。预期需求 ${amountB(annualNeed)}/年 vs 上限 ${amountB(forecastCeiling)}。${needOverCeiling ? "需求超上限 —— 提前预警。" : "需求在上限内。"}已有 ${amountB(existing)}、潜在(概率化) ${amountB(potential)} @ ${softConversion}%。${appliedCount ? `已应用 ${appliedCount} 项应对，当前缺口 ${amountB(fundingGap)}。` : "右侧为应对路径。"}`,
                 })}
               </div>
               <div className="sc-rec-review">⚑ {tr({ en: "Recommendations are pending approval; no commitment is created without human sign-off.", ar: "التوصيات بانتظار الاعتماد.", zh: "建议待审批；未经人工批准不产生承诺。" })}</div>
@@ -414,7 +413,7 @@ export function BudgetExecutionForecastPage({ store }) {
         </div>
 
         <div className="bp-kpis">
-          <div className="bp-kpi"><div className="l">{tr({ en: "Existing obligations", ar: "الالتزامات القائمة", zh: "已有义务(确定)" })}</div><div className="v">{amountB(existing)}</div><div className="s">{tr({ en: "from UC17 committed amount", ar: "من التزامات UC17", zh: "来自 UC17 已承诺金额" })}</div></div>
+          <div className="bp-kpi"><div className="l">{tr({ en: "Existing obligations", ar: "الالتزامات القائمة", zh: "已有义务(确定)" })}</div><div className="v">{amountB(existing)}</div><div className="s">{tr({ en: "from committed execution amount", ar: "من التزامات التنفيذ", zh: "来自执行已承诺金额" })}</div></div>
           <div className="bp-kpi"><div className="l">{tr({ en: "Potential obligations", ar: "التزامات محتملة", zh: "潜在义务(概率)" })}</div><div className="v">{amountB(potential)}</div><div className="s">{tr({ en: `probabilistic · conv ${softConversion}%`, ar: "احتمالي", zh: `概率化 · 转化 ${softConversion}%` })}</div></div>
           <div className={"bp-kpi " + (needOverCeiling ? "danger" : "ok")}><div className="l">{tr({ en: "Expected need vs ceiling", ar: "الحاجة مقابل السقف", zh: "预期需求 vs 上限" })}</div><div className="v">{amountB(annualNeed)}</div><div className="s">{tr({ en: "ceiling ", ar: "السقف ", zh: "上限 " })}{amountB(forecastCeiling)} · {needOverCeiling ? tr({ en: "over", ar: "تجاوز", zh: "超出" }) : tr({ en: "within", ar: "ضمن", zh: "在内" })}</div></div>
           <div className={"bp-kpi " + (fundingGap > 0.01 ? "danger" : "ok")}><div className="l">{tr({ en: "Deficit / fiscal-space gap", ar: "فجوة العجز", zh: "赤字 / 财政空间缺口" })}</div><div className="v">{amountB(fundingGap)}</div><div className="s">{fundingGap > 0.01 ? (firstGapMonth ? tr({ en: "from ", ar: "من ", zh: "自 " }) + monthLabels[firstGapMonth.index] : "") + (appliedCount ? " · -" + appliedCount + tr({ en: " applied", ar: " مطبّق", zh: " 项应对" }) : "") : tr({ en: "surplus / within capacity", ar: "فائض", zh: "结余 / 在能力内" })}</div></div>
@@ -435,12 +434,12 @@ export function BudgetExecutionForecastPage({ store }) {
               <RC.Line type="monotone" dataKey="ceiling" stroke="#e0524a" strokeWidth={2} strokeDasharray="5 4" dot={false} name={tr({ en: "Ceiling", ar: "السقف", zh: "上限" })} />
             </RC.AreaChart>
           </RC.ResponsiveContainer>
-          <div className="uf-note">{tr({ en: "Existing vs potential are shown separately; where the stack crosses the red ceiling line, UC04 creates an expected pressure signal for UC07.", ar: "يظهر القائم والمحتمل بشكل منفصل.", zh: "已有与潜在分开呈现；某周期堆叠超过红色上限线时，UC04 会生成面向 UC07 的预期压力信号。" })}</div>
+          <div className="uf-note">{tr({ en: "Existing vs potential are shown separately; where the stack crosses the red ceiling line, the forecast creates an expected pressure signal for fiscal-space planning.", ar: "يظهر القائم والمحتمل بشكل منفصل.", zh: "已有与潜在分开呈现；某周期堆叠超过红色上限线时，滚动预测会生成面向财政空间规划的预期压力信号。" })}</div>
         </div>
 
         <div className="bp-grid2">
           <div className="uf-sec">
-            <div className="uf-h">{tr({ en: "Approved execution obligations", ar: "التزامات التنفيذ المعتمدة", zh: "已批准执行义务" })} <span className="bp-agent">from UC17</span> <span className="fc-hint">{approvedShown.length}/{approvedRows.length}</span></div>
+            <div className="uf-h">{tr({ en: "Approved execution obligations", ar: "التزامات التنفيذ المعتمدة", zh: "已批准执行义务" })} <span className="bp-agent">{tr({ en: "from execution ledger", ar: "من دفتر التنفيذ", zh: "来自执行台账" })}</span> <span className="fc-hint">{approvedShown.length}/{approvedRows.length}</span></div>
             <div className="fc-search"><span className="fc-search-ic">🔍</span><input placeholder={tr({ en: "Search budget line / contract ID...", ar: "بحث عن بند / رقم...", zh: "搜索预算行 / 合同编号..." })} value={approvedQuery} onChange={(event) => setApprovedQuery(event.target.value)} />{approvedQuery && <button type="button" onClick={() => setApprovedQuery("")}>✕</button>}</div>
             {noPlanRows.length > 0 && <button className={"fc-warn fc-warn-btn" + (approvedOnlyNoPlan ? " on" : "")} type="button" onClick={() => setApprovedOnlyNoPlan((value) => !value)}>⚠ {noPlanRows.length} {tr({ en: "approved obligation(s) without a payment plan", ar: "التزامات دون خطة دفع", zh: "个已批准义务缺少付款计划" })} <em>{approvedOnlyNoPlan ? tr({ en: "· clear filter", ar: "· مسح", zh: "· 取消筛选" }) : tr({ en: "· click to filter", ar: "· انقر للتصفية", zh: "· 点击筛选" })}</em></button>}
             <div className="fc-tscroll">
@@ -469,7 +468,7 @@ export function BudgetExecutionForecastPage({ store }) {
             <div className="fc-debt-row"><span>{tr({ en: "Carried-over debt", ar: "الدين المرحّل", zh: "结转债务" })}</span><b>{amountB(carryDebt)}</b><span>{tr({ en: "target", ar: "الهدف", zh: "目标" })} {amountB(debtTarget)}</span></div>
             <div className="bp-slider"><span className="bp-slk">{tr({ en: "Debt restructuring", ar: "إعادة هيكلة الدين", zh: "债务重组" })}</span><input type="range" min="0" max="100" value={debtResolution} onChange={(event) => setDebtResolution(+event.target.value)} /><span className="bp-slv">-{debtResolution}%</span></div>
             <div className="fc-debt-eff">{tr({ en: "Residual debt ", ar: "الدين المتبقي ", zh: "剩余债务 " })}<b style={{ color: debtOverTarget ? "#c53b32" : "#166534" }}>{amountB(residualDebt)}</b> → {tr({ en: "next-year ceiling ", ar: "سقف العام القادم ", zh: "次年上限 " })}<b>{amountB(nextCeiling)}</b> <span className="fc-debt-delta">({tr({ en: "was", ar: "كان", zh: "原" })} {amountB(forecastCeiling)})</span></div>
-            {debtOverTarget && <div className="fc-warn">⚠ {tr({ en: "Outstanding debt is higher than target, so it compresses next year's UC04 ceiling.", ar: "الدين أعلى من الهدف.", zh: "未偿债务高于目标，将压缩次年 UC04 上限。" })}</div>}
+            {debtOverTarget && <div className="fc-warn">⚠ {tr({ en: "Outstanding debt is higher than target, so it compresses next year's forecast ceiling.", ar: "الدين أعلى من الهدف.", zh: "未偿债务高于目标，将压缩次年预测上限。" })}</div>}
           </div>
           <div className="uf-sec">
             <div className="uf-h">{tr({ en: "Expectation vs reality (Rolling)", ar: "التوقع مقابل الواقع", zh: "预期 vs 实际(滚动追踪)" })} <span className="bp-agent">Rolling Forecasting Agent</span></div>
@@ -477,7 +476,7 @@ export function BudgetExecutionForecastPage({ store }) {
               <thead><tr><th>{tr({ en: "Period", ar: "الفترة", zh: "周期" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Forecast", ar: "متوقع", zh: "预测" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Actual", ar: "فعلي", zh: "实际" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Deviation", ar: "انحراف", zh: "偏差" })}</th></tr></thead>
               <tbody>{actualRows.map((row) => { const deviation = +(((row.actual - row.forecast) / row.forecast) * 100).toFixed(1); return <tr key={row.period}><td>{row.period}</td><td className="bp-mono" style={{ textAlign: "end" }}>{amountB(row.forecast)}</td><td className="bp-mono" style={{ textAlign: "end" }}>{amountB(row.actual)}</td><td className="bp-mono" style={{ textAlign: "end", color: Math.abs(deviation) > 4 ? "#c53b32" : "#166534", fontWeight: 700 }}>{deviation >= 0 ? "+" : ""}{deviation}%</td></tr>; })}</tbody>
             </table>
-            <div className="uf-note">{tr({ en: "Rolling Forecasting reconciles UC17 actuals and re-tunes future periods; large deviation lowers confidence.", ar: "التسوية المتجددة تضبط الفترات القادمة.", zh: "滚动预测对账 UC17 实际数并校准未来周期；偏差过大会拉低置信度。" })}</div>
+            <div className="uf-note">{tr({ en: "Rolling Forecasting reconciles execution actuals and re-tunes future periods; large deviation lowers confidence.", ar: "التسوية المتجددة تضبط الفترات القادمة.", zh: "滚动预测对账执行实际数并校准未来周期；偏差过大会拉低置信度。" })}</div>
           </div>
         </div>
 
@@ -506,7 +505,7 @@ export function BudgetExecutionForecastPage({ store }) {
         {actionMessage && <div className="uf-sec sc-actionbar" style={{ alignItems: "center" }}>
           <div className="sc-actmsg" style={{ flexBasis: "auto" }}>✓ {tr(actionMessage)}</div>
           <button className="dw-btn" type="button" onClick={() => setActionMessage(null)}>{tr({ en: "Dismiss", ar: "إغلاق", zh: "关闭" })}</button>
-          <button className="dw-btn" type="button" onClick={() => openRoute("budexec-reports", "G03-UC04 forecast evidence sent to UC10 report")}>{tr({ en: "Generate report", ar: "إنشاء تقرير", zh: "生成报告" })}</button>
+          <button className="dw-btn" type="button" onClick={() => openRoute("budexec-reports", "Forecast evidence sent to report generation")}>{tr({ en: "Generate report", ar: "إنشاء تقرير", zh: "生成报告" })}</button>
         </div>}
       </div>
       <BudgetExecutionSmartQuery tr={tr} pushLog={pushLog} page="uc04" />

@@ -2,7 +2,7 @@ import React from "react";
 import { BudgetExecutionStoryline } from "./BudgetExecutionStoryline.jsx";
 
 /**
- * Shared G03 budget execution page header with the same storyline treatment.
+ * Shared budget execution page header with the same storyline treatment.
  */
 export function BudgetExecutionPageHeader({ tr, title, subtitle, current, onBack, onNavigate, alertCount = 0, onAlerts }) {
   return (

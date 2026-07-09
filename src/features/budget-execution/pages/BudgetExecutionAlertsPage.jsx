@@ -19,7 +19,7 @@ const buildWarningType = (row) => {
 };
 
 /**
- * G03 exception monitoring page sourced from the current UC17 execution ledger.
+ * Exception monitoring page sourced from the current execution ledger.
  */
 export function BudgetExecutionAlertsPage({ store }) {
   const { tr, route, setRoute, setBackRoute, pushLog } = store;
@@ -39,8 +39,8 @@ export function BudgetExecutionAlertsPage({ store }) {
       <BudgetExecutionPageHeader
         tr={tr}
         current="exceptions"
-        title={{ en: "G03-UC02 Execution Warnings & Exception Monitoring", ar: "G03-UC02 تنبيهات التنفيذ ومراقبة الاستثناءات", zh: "G03-UC02 执行预警与异常监控" }}
-        subtitle={{ en: "This UC02 page is populated by the current UC17 execution warnings and keeps each alert tied to its budget line, movement stage and proposed handling path.", ar: "تُعبأ صفحة UC02 هذه من تحذيرات تنفيذ UC17 الحالية وتحافظ على ربط كل تنبيه ببند الميزانية ومرحلة الحركة ومسار المعالجة.", zh: "该 UC02 页面呈现当前 UC17 的预警数据，并保留每条预警对应的预算行、movement 阶段和建议处理路径。" }}
+        title={{ en: "Execution Warnings & Exception Monitoring", ar: "تنبيهات التنفيذ ومراقبة الاستثناءات", zh: "执行预警与异常监控" }}
+        subtitle={{ en: "Current execution warnings are tied to budget line, movement stage and proposed handling path.", ar: "ترتبط التحذيرات الحالية ببند الميزانية ومرحلة الحركة ومسار المعالجة المقترح.", zh: "呈现当前执行预警数据，并保留每条预警对应的预算行、movement 阶段和建议处理路径。" }}
         alertCount={riskRows.length}
         onBack={() => openRoute("budexec17", "Back to execution ledger")}
         onNavigate={navigateStory}
@@ -68,7 +68,7 @@ export function BudgetExecutionAlertsPage({ store }) {
       </section>
 
       <div className="g03-kpi-grid be17-alert-kpis">
-        <div className="g03-kpi bad"><span>{tr({ en: "Risk budget lines", ar: "بنود عالية المخاطر", zh: "风险预算行" })}</span><b>{riskRows.length}</b><small>{tr({ en: "from UC17 execution ledger", ar: "من دفتر التنفيذ", zh: "来自 UC17 执行台账" })}</small></div>
+        <div className="g03-kpi bad"><span>{tr({ en: "Risk budget lines", ar: "بنود عالية المخاطر", zh: "风险预算行" })}</span><b>{riskRows.length}</b><small>{tr({ en: "from execution ledger", ar: "من دفتر التنفيذ", zh: "来自执行台账" })}</small></div>
         <div className="g03-kpi warn"><span>{tr({ en: "Committed amount under warning", ar: "التزامات تحت التحذير", zh: "预警承诺金额" })}</span><b>{formatSar(riskRows.reduce((sum, row) => sum + row.metrics.committed, 0))}</b><small>{tr({ en: "requires owner review", ar: "تتطلب مراجعة المالك", zh: "需业务负责人复核" })}</small></div>
         <div className="g03-kpi good"><span>{tr({ en: "Transfer candidates", ar: "مرشحات المناقلة", zh: "转移候选" })}</span><b>{formatSar(riskRows.reduce((sum, row) => sum + Math.max(row.metrics.available, 0), 0))}</b><small>{tr({ en: "available-funds review pool", ar: "مجمع مراجعة الأموال المتاحة", zh: "可用资金复核池" })}</small></div>
         <div className="g03-kpi"><span>{tr({ en: "Latest source refresh", ar: "آخر تحديث للمصدر", zh: "最新来源刷新" })}</span><b>2026-05-01</b><small>SAP/Asas · Etimad Plus</small></div>
@@ -76,7 +76,7 @@ export function BudgetExecutionAlertsPage({ store }) {
 
       <BudgetExecutionSection
         tr={tr}
-        title={{ en: "Current UC17 warning data", ar: "بيانات التحذير الحالية من التنفيذ", zh: "当前 UC17 预警数据" }}
+        title={{ en: "Current warning data", ar: "بيانات التحذير الحالية من التنفيذ", zh: "当前预警数据" }}
         sub={{ en: "Each warning remains traceable to the selected execution budget line, movement stage and suggested transfer path.", ar: "كل تحذير قابل للتتبع إلى بند الميزانية ومرحلة الحركة ومسار المناقلة المقترح.", zh: "每条预警均可追溯到执行预算行、movement 阶段和建议转移路径。" }}
         agent={{ en: "Agent: Exception Monitoring Agent", ar: "الوكيل: مراقبة الاستثناءات", zh: "Agent：Exception Monitoring Agent" }}
       >

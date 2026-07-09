@@ -2543,21 +2543,21 @@ const MF_G02 = {
 
 const MF_G03 = {
   back: "buwork", cw: 2020, ch: 820,
-  title: { en: "Budget Execution Department — Multi-Agent Flow (G-03)", ar: "إدارة تنفيذ الميزانية — تدفّق متعدد الوكلاء (ج-03)", zh: "预算执行部 — 多智能体流程(G-03)" },
-  subtitle: { en: "Second-level department · 7 use cases · central reconciliation core · UC-01 → UC-17 → UC-02 → UC-04 → UC-07 → UC-03 → UC-10 · all handoffs orchestrated with audit logging", ar: "إدارة من المستوى الثاني · 7 حالات · نواة تسوية مركزية · جميع عمليات التسليم منسّقة مع سجل تدقيق", zh: "二级部门 · 7 个用例 · 中央对账核心 · UC-01 → UC-17 → UC-02 → UC-04 → UC-07 → UC-03 → UC-10 · 所有交接由编排器协调并审计记录" },
+  title: { en: "Budget Execution Department — Multi-Agent Flow", ar: "إدارة تنفيذ الميزانية — تدفّق متعدد الوكلاء", zh: "预算执行部 — 多智能体流程" },
+  subtitle: { en: "Second-level department · central reconciliation core · data unification → execution ledger → warnings → rolling forecast → fiscal space → smart query → report generation · all handoffs orchestrated with audit logging", ar: "إدارة من المستوى الثاني · نواة تسوية مركزية · جميع عمليات التسليم منسّقة مع سجل تدقيق", zh: "二级部门 · 中央对账核心 · 数据统一 → 执行台账 → 预警 → 滚动预测 → 财政空间 → 智能问数 → 报告生成 · 所有交接由编排器协调并审计记录" },
   src: { x: 14, y: 96, w: 184, h: 320, list: [{ en: "SAP / Asas — financial truth: availability report & consumption detail", ar: "ساب / أساس — مصدر الحقيقة: تقرير التوافر وتفاصيل الاستهلاك", zh: "SAP/Asas — 财务真相:可用性监控报表、消费明细导出" }, { en: "Etimad / Etimad Plus — contracts, claims & payments (in transition)", ar: "اعتماد / اعتماد بلس — العقود والمطالبات والمدفوعات (مرحلة انتقالية)", zh: "Etimad / Etimad Plus — 合同、索赔与付款(迁移过渡期)" }, { en: "Hyperion / MTFP — budget submission & transfer channel (limited analytics)", ar: "هايبريون / MTFP — قناة تقديم ومناقلات الميزانية (تحليل محدود)", zh: "Hyperion/MTFP — 预算提交/转移通道(分析价值有限)" }, { en: "Excel — legacy pivots & code dictionaries (being phased out)", ar: "إكسل — جداول محورية وقواميس رموز (يجري تقليصه)", zh: "Excel — 现状透视与代码字典(逐步弱化)" }] },
   nodes: {
-    uc01: { code: "UC-01", x: 268, y: 100, w: 224, h: 184, title: { en: "Financial Data Standardization and Data Quality", ar: "توحيد البيانات المالية وجودتها", zh: "财务数据统一与数据质量" }, ags: ["orch", "dataq", "insight"] },
-    uc17: { code: "UC-17", x: 560, y: 84, w: 250, h: 216, title: { en: "Automated Budget Execution Monitoring & Operational Reconciliation", ar: "تتبّع تنفيذ الميزانية والتسوية", zh: "预算执行跟踪与对账" }, ags: ["orch", "dataq", "repgen", "anom", "narr", "insight"] },
-    uc02: { code: "UC-02", x: 882, y: 100, w: 224, h: 184, title: { en: "Detecting Deviations, Alerts, and Exceptions", ar: "كشف الشذوذ والتنبيهات والاستثناءات", zh: "异常检测、告警与例外" }, ags: ["anom", "insight", "orch"] },
-    uc04: { code: "UC-04", x: 1176, y: 100, w: 224, h: 184, title: { en: "Forecasting Future Obligations and Needs", ar: "التنبؤ بالالتزامات والاحتياجات المستقبلية", zh: "预测承诺与未来需求" }, ags: ["fcast", "roll", "market"] },
-    uc07: { code: "UC-07", x: 1470, y: 100, w: 224, h: 184, title: { en: "Budget Planning, Allocation of Ceilings, and Fiscal Space", ar: "تخطيط الميزانية والسقوف والحيّز المالي", zh: "预算规划、上限与财政空间" }, ags: ["budopt", "scen", "roll"] },
-    uc03: { code: "UC-03", x: 300, y: 520, w: 230, h: 176, title: { en: "Smart Query, Audit Log & Permissions", ar: "الاستعلام الذكي وسجل التدقيق والصلاحيات", zh: "智能查询、审计日志与权限" }, ags: ["dataq", "orch", "insight"] },
-    uc10: { code: "UC-10", x: 742, y: 520, w: 262, h: 176, title: { en: "Financial & Mgmt Reports Generation & Narrative", ar: "توليد التقارير المالية والإدارية والسرد", zh: "财务与管理报告生成及叙述" }, ags: ["repgen", "narr", "dataq"] },
+    uc01: { code: "Data", x: 268, y: 100, w: 224, h: 184, title: { en: "Financial Data Standardization and Data Quality", ar: "توحيد البيانات المالية وجودتها", zh: "财务数据统一与数据质量" }, ags: ["orch", "dataq", "insight"] },
+    uc17: { code: "Ledger", x: 560, y: 84, w: 250, h: 216, title: { en: "Automated Budget Execution Monitoring & Operational Reconciliation", ar: "تتبّع تنفيذ الميزانية والتسوية", zh: "预算执行跟踪与对账" }, ags: ["orch", "dataq", "repgen", "anom", "narr", "insight"] },
+    uc02: { code: "Warnings", x: 882, y: 100, w: 224, h: 184, title: { en: "Detecting Deviations, Alerts, and Exceptions", ar: "كشف الشذوذ والتنبيهات والاستثناءات", zh: "异常检测、告警与例外" }, ags: ["anom", "insight", "orch"] },
+    uc04: { code: "Forecast", x: 1176, y: 100, w: 224, h: 184, title: { en: "Forecasting Future Obligations and Needs", ar: "التنبؤ بالالتزامات والاحتياجات المستقبلية", zh: "预测承诺与未来需求" }, ags: ["fcast", "roll", "market"] },
+    uc07: { code: "Fiscal space", x: 1470, y: 100, w: 224, h: 184, title: { en: "Budget Planning, Allocation of Ceilings, and Fiscal Space", ar: "تخطيط الميزانية والسقوف والحيّز المالي", zh: "预算规划、上限与财政空间" }, ags: ["budopt", "scen", "roll"] },
+    uc03: { code: "Smart query", x: 300, y: 520, w: 230, h: 176, title: { en: "Smart Query, Audit Log & Permissions", ar: "الاستعلام الذكي وسجل التدقيق والصلاحيات", zh: "智能查询、审计日志与权限" }, ags: ["dataq", "orch", "insight"] },
+    uc10: { code: "Reports", x: 742, y: 520, w: 262, h: 176, title: { en: "Financial & Mgmt Reports Generation & Narrative", ar: "توليد التقارير المالية والإدارية والسرد", zh: "财务与管理报告生成及叙述" }, ags: ["repgen", "narr", "dataq"] },
   },
   gate: { x: 1252, y: 470, w: 366, h: 296,
     head: { en: "Mandatory Human Review (Human-in-the-Loop)", ar: "مراجعة بشرية إلزامية (إنسان ضمن الحلقة)", zh: "强制人工复核(人在回路)" },
-    intro: { en: "All use-case outputs from the Budget Execution Department are reviewed and approved by department officers before being released as official reports, alerts, or exports.", ar: "تُراجَع جميع مخرجات الحالات في إدارة تنفيذ الميزانية وتُعتمد من مسؤولي الإدارة قبل إصدارها كتقارير أو تنبيهات أو صادرات رسمية.", zh: "预算执行部所有用例输出在作为正式报告、告警或导出发布前,均由部门官员复核批准。" },
+    intro: { en: "All feature outputs from the Budget Execution Department are reviewed and approved by department officers before being released as official reports, alerts, or exports.", ar: "تُراجَع جميع مخرجات الميزات في إدارة تنفيذ الميزانية وتُعتمد من مسؤولي الإدارة قبل إصدارها كتقارير أو تنبيهات أو صادرات رسمية.", zh: "预算执行部所有功能输出在作为正式报告、告警或导出发布前,均由部门官员复核批准。" },
     ckLabel: { en: "Review checkpoints:", ar: "نقاط المراجعة:", zh: "复核检查点:" },
     items: [
       { en: "Validate reconciliation results before publication", ar: "التحقّق من نتائج التسوية قبل النشر", zh: "发布前校验对账结果" },
@@ -3441,17 +3441,17 @@ const PLAZA_G02 = {
 };
 
 const PLAZA_G03 = {
-  top: { en: "CORE · BUDGET EXECUTION (G-03)", ar: "أساسي · تنفيذ الميزانية (ج-03)", zh: "核心 · 预算执行(G-03)" },
-  bot: { en: "DOWNSTREAM USE CASES", ar: "الحالات اللاحقة", zh: "下游用例" },
-  title: { en: "Group flow — Budget Execution (G-03)", ar: "مسار المجموعة — تنفيذ الميزانية (ج-03)", zh: "组流程 — 预算执行(G-03)" },
+  top: { en: "CORE · BUDGET EXECUTION", ar: "أساسي · تنفيذ الميزانية", zh: "核心 · 预算执行" },
+  bot: { en: "DOWNSTREAM FEATURES", ar: "الميزات اللاحقة", zh: "下游功能" },
+  title: { en: "Budget Execution flow", ar: "مسار تنفيذ الميزانية", zh: "预算执行流程" },
   nodes: [
-    pzNode("uc01", "rev", 0),
-    pzNode("uc17", "rev", 1, { open: "budexec17" }),
-    pzNode("uc02", "ast", 0, { open: "budexec-alerts" }),
-    pzNode("uc04", "ast", 1, { open: "budexec-forecast" }),
-    pzNode("uc07", "ast", 2, { open: "budexec-space", agents: ["Budget Optimization", "Scenario Simulation", "Rolling Forecasting"] }),
-    pzNode("uc03", "ast", 3, { agents: ["Natural Language", "Query Interface", "Instant Insights"] }),
-    pzNode("uc10", "ast", 4, { open: "budexec-reports", star: 1, agents: ["Structured Reports", "Dashboard Export", "Audit Trail"] }),
+    pzNode("uc01", "rev", 0, { code: "Data" }),
+    pzNode("uc17", "rev", 1, { code: "Ledger", open: "budexec17" }),
+    pzNode("uc02", "ast", 0, { code: "Warnings", open: "budexec-alerts" }),
+    pzNode("uc04", "ast", 1, { code: "Forecast", open: "budexec-forecast" }),
+    pzNode("uc07", "ast", 2, { code: "Fiscal space", open: "budexec-space", agents: ["Budget Optimization", "Scenario Simulation", "Rolling Forecasting"] }),
+    pzNode("uc03", "ast", 3, { code: "Smart query", agents: ["Natural Language", "Query Interface", "Instant Insights"] }),
+    pzNode("uc10", "ast", 4, { code: "Reports", open: "budexec-reports", star: 1, agents: ["Structured Reports", "Dashboard Export", "Audit Trail"] }),
   ],
   intra: [["uc01", "uc17"], ["uc02", "uc04"], ["uc04", "uc07"], ["uc07", "uc03"], ["uc03", "uc10"]],
   cross: [
@@ -3548,13 +3548,13 @@ const FLOW_PLAN = [
   { code: "UC-06", label: { en: "Performance & reports", ar: "الأداء والتقارير", zh: "绩效与报告" }, cls: "down" },
 ];
 const FLOW_BUD = [
-  { code: "UC-01", label: { en: "Data unification", ar: "توحيد البيانات", zh: "数据统一" }, cls: "in" },
-  { code: "UC-17", label: { en: "Budget execution tracking", ar: "تتبّع تنفيذ الميزانية", zh: "预算执行跟踪" }, cls: "focus", star: true },
-  { code: "UC-02", label: { en: "Deviation detection", ar: "كشف الانحرافات", zh: "偏差检测" }, cls: "down" },
-  { code: "UC-04", label: { en: "Forecasting", ar: "التنبؤ", zh: "财务预测" }, cls: "down" },
-  { code: "UC-07", label: { en: "Budget planning", ar: "تخطيط الميزانية", zh: "预算规划" }, cls: "down" },
-  { code: "UC-03", label: { en: "Smart query", ar: "الاستعلام الذكي", zh: "智能查询" }, cls: "down" },
-  { code: "UC-10", label: { en: "Reports", ar: "التقارير", zh: "报告" }, cls: "down" },
+  { code: "Data", label: { en: "Data unification", ar: "توحيد البيانات", zh: "数据统一" }, cls: "in" },
+  { code: "Ledger", label: { en: "Execution ledger", ar: "دفتر التنفيذ", zh: "执行台账" }, cls: "focus", star: true },
+  { code: "Warnings", label: { en: "Deviation detection", ar: "كشف الانحرافات", zh: "偏差检测" }, cls: "down" },
+  { code: "Forecast", label: { en: "Rolling forecast", ar: "التنبؤ المتجدد", zh: "滚动预测" }, cls: "down" },
+  { code: "Fiscal space", label: { en: "Budget planning", ar: "تخطيط الميزانية", zh: "预算规划" }, cls: "down" },
+  { code: "Smart query", label: { en: "Smart query", ar: "الاستعلام الذكي", zh: "智能查询" }, cls: "down" },
+  { code: "Reports", label: { en: "Reports", ar: "التقارير", zh: "报告" }, cls: "down" },
 ]
 const FLOW_ENT = [
   { code: "UC-01", label: { en: "Unified data", ar: "بيانات موحّدة", zh: "统一数据" }, cls: "in" },
@@ -3679,7 +3679,7 @@ function BusinessPlaza({ model, defaultSel }) {
   return (<React.Fragment>
     <div className="ws-plaza">
       <div className="plaza-head">
-        <div><h2 style={{ fontSize: 16 }}>{tr({ en: "Business Plaza", ar: "ساحة الأعمال", zh: "业务广场" })}</h2><div className="sub muted">{tr({ en: "Click a UC for its I/O · ↗ opens its page in one click · others are context-only", ar: "انقر حالة لعرض المدخلات/المخرجات · ↗ يفتح صفحتها بنقرة · البقية للسياق", zh: "点击 UC 查看其 I/O · ↗ 一键打开其页面 · 其余仅为上下文" })}</div></div>
+        <div><h2 style={{ fontSize: 16 }}>{tr({ en: "Business Plaza", ar: "ساحة الأعمال", zh: "业务广场" })}</h2><div className="sub muted">{tr({ en: "Select a feature to inspect its inputs and outputs · ↗ opens its page in one click · others are context-only", ar: "اختر ميزة لعرض المدخلات والمخرجات · ↗ يفتح صفحتها بنقرة · البقية للسياق", zh: "选择业务节点查看输入输出 · ↗ 一键打开页面 · 其余仅为上下文" })}</div></div>
         <div className="pz-tools"><button className="btn sm pz-expand" onClick={() => setPlazaModal(true)}>{tr({ en: "Expand", ar: "توسيع", zh: "展开" })} ↗</button></div>
       </div>
       <div className="ws-flowwrap pz-wrap" ref={plazaWrapRef} style={{ height: Math.ceil(ovH * ovScale) }}>
@@ -3769,7 +3769,7 @@ function RcWorkspace() {
         <div className="sub muted">{tr({ en: "Mandate: billing, collections & exclusions (UC-13). Workspace — operating type: KPI metrics + Business Plaza for cross-dept hand-off + floating Smart Query.", ar: "المهمة: الفوترة والتحصيل والاستبعادات (UC-13). مساحة العمل — نوع تشغيلي: مؤشرات + ساحة الأعمال للتسليم بين الإدارات + استعلام ذكي عائم.", zh: "职责:开票、征收与排除项(UC-13)。Workspace — 运营生产型:关键指标 + Business Plaza 跨部门协同交付 + 浮动智能查询。" })}{SHOW_UC ? " · UC-13" : ""}</div></div>
       {/* compact downstream storyline (demo note) — right of header, no border */}
       <div className="ws-story-r">
-        <div className="ws-story-h">{tr({ en: "G-06 storyline · downstream evolution", ar: "مسار ج-06 · التطور اللاحق", zh: "G-06 故事线 · 下游演进" })}</div>
+        <div className="ws-story-h">{tr({ en: "Department storyline · downstream evolution", ar: "مسار الإدارة · التطور اللاحق", zh: "部门故事线 · 下游演进" })}</div>
         <div className="flowstrip mini">{RC_FLOW.map((f, i) => (<React.Fragment key={i}>{i > 0 && <span className="farr">➜</span>}
           <div className={"fb " + f.cls}>{f.star ? "★ " : ""}{SHOW_UC ? f.code : tr(f.label)}</div></React.Fragment>))}</div>
       </div>
@@ -8391,11 +8391,11 @@ const WS_CFG_AUDIT = {
   },
 };
 
-/* ---- Budget Execution Department (UC-07/06) ---- */
+/* ---- Budget Execution Department ---- */
 const WS_CFG_BUDEXEC = {
-  uc: "UC-17 (+07)", kpiTone: "green", flow: FLOW_BUD, plazaModel: PLAZA_G03, plazaSel: "uc17", flowRoute: "g03flow",
-  console: "g03console",
-  consoleLabel: { en: "Budget Execution Console (UC-17)", ar: "وحدة تنفيذ الميزانية (UC-17)", zh: "预算执行控制台(UC-17)" },
+  uc: "Execution ledger", kpiTone: "green", flow: FLOW_BUD, plazaModel: PLAZA_G03, plazaSel: "uc17", flowRoute: "g03flow",
+  console: "budexec17",
+  consoleLabel: { en: "Budget Execution Console", ar: "وحدة تنفيذ الميزانية", zh: "预算执行控制台" },
   consoleSub: { en: "Budget-line query · SAP / Asas movements · idle-fund & transfer paths", ar: "استعلام البند · حركات ساب/أساس · السيولة الخاملة والمناقلات", zh: "预算行查询 · SAP/Asas 明细 · 闲置资金与转移路径" },
   title: { en: "Budget Execution Department", ar: "إدارة تنفيذ الميزانية", zh: "预算执行部" },
   mandate: { en: "Mandate: real-time budget execution monitoring, SAP/ASAS-Etimad-Hyperion reconciliation, PR-to-consumption chain control, alert routing and auditable report generation.", ar: "المهمة: مراقبة تنفيذ الميزانية آنياً، ومطابقة ساب/أساس واعتماد وهايبريون، وضبط السلسلة من طلب الشراء إلى الاستهلاك، وتوجيه التنبيهات وإنشاء تقارير قابلة للتدقيق.", zh: "职责: 实时预算执行监控、SAP/ASAS-Etimad-Hyperion 对账、PR 到消耗全链路控制、预警分发与可审计报告生成。" },
@@ -8406,23 +8406,23 @@ const WS_CFG_BUDEXEC = {
       { lab: { en: "Execution Rate", ar: "معدل التنفيذ", zh: "执行率" }, v: "64.0%", d: { en: "spent 11.12B ÷ budget 17.37B", ar: "مصروف 11.12 ÷ ميزانية 17.37", zh: "已花 11.12B ÷ 预算 17.37B" } },
       { lab: { en: "Behind Plan", ar: "خلف الخطة", zh: "落后计划" }, v: "−SAR 4.86B", d: { en: "actual − plan-to-date 15.98", ar: "فعلي − خطة 15.98", zh: "实际 − 至今计划 15.98" } },
       { lab: { en: "Remaining", ar: "المتبقي", zh: "剩余" }, v: "SAR 6.25B", d: { en: "36% unspent", ar: "36% غير مصروف", zh: "36% 未支出" } },
-      { lab: { en: "Liquidity", ar: "السيولة", zh: "流动性" }, v: "SAR 1.2B", d: { en: "available (UC-07)", ar: "متاح (UC-07)", zh: "可用(UC-07)" } },
+      { lab: { en: "Liquidity", ar: "السيولة", zh: "流动性" }, v: "SAR 1.2B", d: { en: "available for fiscal-space planning", ar: "متاح لتخطيط الحيز المالي", zh: "可用于财政空间规划" } },
     ],
     [
       { lab: { en: "Execution by Chapter (low 3)", ar: "التنفيذ حسب الباب (أدنى 3)", zh: "按门(章)执行率(最低3)" }, aging: [["Subsidies (D4)", 22, "22%"], ["Capital (D3)", 35, "35%"], ["Operations (D2)", 42, "42%"]] },
       { lab: { en: "Personnel (Door 1)", ar: "تعويضات (الباب 1)", zh: "人员(第1门)" }, v: "88%", d: { en: "spent 1000 ÷ 1138", ar: "مصروف 1000 ÷ 1138", zh: "已花 1000 ÷ 1138" }, up: true },
-      { lab: { en: "Pending Transfers", ar: "مناقلات معلّقة", zh: "待批转移" }, v: "3", d: { en: "within ceilings (UC-07)", ar: "ضمن السقوف (UC-07)", zh: "在上限内(UC-07)" } },
-      { lab: { en: "Transfer Candidates", ar: "مرشحو المناقلة", zh: "转移候选" }, v: "SAR 0.9B", d: { en: "23 idle lines (line-level · UC-17)", ar: "23 بنداً خاملاً (مستوى البند · UC-17)", zh: "23 条闲置预算行(行级 · UC-17)" } },
+      { lab: { en: "Pending Transfers", ar: "مناقلات معلّقة", zh: "待批转移" }, v: "3", d: { en: "within fiscal-space ceilings", ar: "ضمن سقوف الحيز المالي", zh: "在财政空间上限内" } },
+      { lab: { en: "Transfer Candidates", ar: "مرشحو المناقلة", zh: "转移候选" }, v: "SAR 0.9B", d: { en: "23 idle lines from the execution ledger", ar: "23 بنداً خاملاً من دفتر التنفيذ", zh: "来自执行台账的 23 条闲置预算行" } },
     ],
     [
-      { lab: { en: "SAP Movements Translated", ar: "حركات ساب المترجمة", zh: "已解析 SAP movement" }, v: "184,300", d: { en: "rows · minutes, not hours in Excel (UC-17)", ar: "صفوف · دقائق بدل ساعات إكسل (UC-17)", zh: "行 · 分钟级(原 Excel 透视需数小时)(UC-17)" }, up: true },
+      { lab: { en: "SAP Movements Translated", ar: "حركات ساب المترجمة", zh: "已解析 SAP movement" }, v: "184,300", d: { en: "rows · minutes, not hours in Excel", ar: "صفوف · دقائق بدل ساعات إكسل", zh: "行 · 分钟级(原 Excel 透视需数小时)" }, up: true },
       { lab: { en: "Idle Budget Lines", ar: "بنود خاملة", zh: "闲置预算行" }, v: "23", d: { en: "available > 90d, no commitment · SAR 0.9B", ar: "متاحة > 90 يوماً دون التزام · 0.9 مليار", zh: "可用>90天且无承诺 · SAR 0.9B" } },
       { lab: { en: "Committed, No Invoice", ar: "ملتزم بلا فواتير", zh: "承诺后无发票" }, v: "11", d: { en: "> 60d since commitment · SAR 0.7B", ar: "> 60 يوماً منذ الالتزام · 0.7 مليار", zh: "承诺后>60天 · SAR 0.7B" } },
       { lab: { en: "Etimad Plus Migration", ar: "انتقال اعتماد بلس", zh: "Etimad Plus 迁移" }, v: "Transition", d: { en: "report structures may change · snapshots kept", ar: "قد تتغير هياكل التقارير · حُفظت اللقطات", zh: "报表结构或将变化 · 已留存历史快照" } },
     ],
   ],
   orch: {
-    uc: "UC-17", run: "#7042", agent: { en: "Budget Execution agent", ar: "وكيل تنفيذ الميزانية", zh: "预算执行智能体" },
+    uc: "Execution ledger", run: "#7042", agent: { en: "Budget Execution agent", ar: "وكيل تنفيذ الميزانية", zh: "预算执行智能体" },
     chips: ["scope: FY2026", "src: SAP/Asas + Etimad", "policy: ceilings"],
     defaultPrompt: { en: "Explain budget line B-3402 across SAP/Asas — budget, commitments, invoices, payments, balance and funds availability — flag lines that are idle or committed with no invoice, and draft transfer candidates for approval.", ar: "اشرح البند B-3402 عبر ساب/أساس — الميزانية والالتزامات والفواتير والمدفوعات والرصيد وتوافر الأموال — وحدّد البنود الخاملة أو الملتزمة دون فواتير، وصُغ مرشحي مناقلة للاعتماد.", zh: "解释预算项 B-3402 在 SAP/Asas 中的全貌——预算、承诺、发票、付款、余额与资金可用性——标记闲置或承诺后长期无发票的预算行,并起草转移候选清单供审批。" },
     startLog: { en: "Orchestrator started — translating SAP movements & scanning funds availability (FY2026)", ar: "بدأ المنسّق — ترجمة حركات ساب وفحص توافر الأموال", zh: "编排器已启动——解析 SAP movement 并扫描资金可用性(FY2026)" },
@@ -8431,10 +8431,10 @@ const WS_CFG_BUDEXEC = {
     returnLog: { en: "Transfer candidates returned to the Budget Execution agent for rework", ar: "أُعيد مرشحو المناقلة لوكيل التنفيذ", zh: "转移候选已退回预算执行智能体重新处理" },
     prompts: [{ t: { en: "Explain a budget line end-to-end", ar: "اشرح بنداً من البداية للنهاية", zh: "端到端解释一条预算项" }, s: { en: "SAP movements → business view", ar: "حركات ساب ← منظور الأعمال", zh: "SAP movement → 业务视图" } }, { t: { en: "Find idle budget lines", ar: "إيجاد البنود الخاملة", zh: "找出闲置预算行" }, s: { en: "available > 90 days", ar: "متاحة > 90 يوماً", zh: "可用超 90 天" } }, { t: { en: "Committed but no invoice", ar: "ملتزم دون فواتير", zh: "承诺后无发票" }, s: { en: "stalled > 60 days", ar: "متعثر > 60 يوماً", zh: "滞留超 60 天" } }],
     tlMeta: [
-      { code: "UC-01", t: { en: "connect SAP/Asas + Etimad live", ar: "الاتصال المباشر بساب/أساس واعتماد", zh: "直连 SAP/Asas + Etimad" }, s: { en: "no static Excel · 184,300 movements · 0.8s", ar: "دون إكسل ثابت · 184,300 حركة · 0.8 ث", zh: "不经静态 Excel · 184,300 movement · 0.8s" } },
-      { code: "UC-17", t: { en: "translate movements to business language", ar: "ترجمة الحركات إلى لغة الأعمال", zh: "将 movement 翻译成业务语言" }, s: { en: "B-3402: budget 120M · committed 84M · invoiced 61M · paid 58M", ar: "B-3402: ميزانية 120 · التزام 84 · فواتير 61 · مدفوع 58", zh: "B-3402:预算 120M · 承诺 84M · 发票 61M · 已付 58M" } },
-      { code: "UC-02", t: { en: "detect idle & stalled lines", ar: "كشف البنود الخاملة والمتعثرة", zh: "检测闲置与滞留预算行" }, s: { en: "23 idle · 11 no-invoice · Entitlements liquidity signal received (2 lines)", ar: "23 خاملاً · 11 بلا فواتير · وردت إشارة سيولة الاستحقاقات (بندان)", zh: "23 闲置 · 11 无发票 · 另收到权益部流动性信号(2 行)" } },
-      { code: "UC-07", t: { en: "draft transfer candidates", ar: "صياغة مرشحي المناقلة", zh: "起草转移候选清单" }, s: { en: "waits for human approval", ar: "بانتظار الاعتماد البشري", zh: "等待人工审批" } },
+      { code: "Data", t: { en: "connect SAP/Asas + Etimad live", ar: "الاتصال المباشر بساب/أساس واعتماد", zh: "直连 SAP/Asas + Etimad" }, s: { en: "no static Excel · 184,300 movements · 0.8s", ar: "دون إكسل ثابت · 184,300 حركة · 0.8 ث", zh: "不经静态 Excel · 184,300 movement · 0.8s" } },
+      { code: "Ledger", t: { en: "translate movements to business language", ar: "ترجمة الحركات إلى لغة الأعمال", zh: "将 movement 翻译成业务语言" }, s: { en: "B-3402: budget 120M · committed 84M · invoiced 61M · paid 58M", ar: "B-3402: ميزانية 120 · التزام 84 · فواتير 61 · مدفوع 58", zh: "B-3402:预算 120M · 承诺 84M · 发票 61M · 已付 58M" } },
+      { code: "Warnings", t: { en: "detect idle & stalled lines", ar: "كشف البنود الخاملة والمتعثرة", zh: "检测闲置与滞留预算行" }, s: { en: "23 idle · 11 no-invoice · Entitlements liquidity signal received (2 lines)", ar: "23 خاملاً · 11 بلا فواتير · وردت إشارة سيولة الاستحقاقات (بندان)", zh: "23 闲置 · 11 无发票 · 另收到权益部流动性信号(2 行)" } },
+      { code: "Fiscal space", t: { en: "draft transfer candidates", ar: "صياغة مرشحي المناقلة", zh: "起草转移候选清单" }, s: { en: "waits for human approval", ar: "بانتظار الاعتماد البشري", zh: "等待人工审批" } },
     ],
     reviewBody: { en: "A transfer-candidate list (23 idle lines · SAR 0.9B) — part of the transfers answers the Entitlements liquidity signal (2 receiving lines · wk 28–31) — requires approval before transfer requests are created.", ar: "تتطلب قائمة مرشحي المناقلة (23 بنداً خاملاً · 0.9 مليار) — يوجَّه جزء من المناقلات لتلبية إشارة سيولة الاستحقاقات (بندان مستقبلان · الأسابيع 28–31) — اعتماداً قبل إنشاء طلبات المناقلة.", zh: "转移候选清单(23 条闲置预算行 · SAR 0.9B)——其中部分转移用于响应权益部流动性信号(2 条接收行 · 第28–31周)——需审批后方可创建转移申请。" },
     approveLabel: { en: "Approve candidates", ar: "اعتماد المرشحين", zh: "批准候选清单" },
@@ -9002,7 +9002,7 @@ function Shell() {
   else if (route === "fpawork") page = <FpaWorkspace />;
   else if (route === "audwork") page = <AuditWorkspace />;
   else if (route === "buwork") page = <BudgetExecWorkspace />;
-  else if (route === "g03console") page = <BudgetExecConsole />;
+  else if (route === "g03console") page = <BudgetExecutionMonitoringRoute />;
   else if (route === "plnbudget") page = <BudgetPlanningConsolePage />;
   else if (route === "plncost") page = <ProjectCostWorkbench />;
   else if (route === "plnhousing") page = <HousingSubsidyWorkbench />;
