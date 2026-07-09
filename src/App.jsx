@@ -8127,6 +8127,7 @@ function mdToJsx(text) {
 }
 function OrchChat({ cfg }) {
   const { tr, pushLog, lang } = useStore();
+  const hideReviewCards = cfg.hideReviewCards;
   const [phase, setPhase] = useState("idle");
   const [prompt, setPrompt] = useState(tr(cfg.defaultPrompt));
   const [sent, setSent] = useState(null);
@@ -8210,7 +8211,7 @@ function OrchChat({ cfg }) {
             <div className="es">{tr(e.s)}</div>
           </div>); })}</div>
       </div>}
-      {(phase === "review" || phase === "approved" || phase === "returned") && <div className="chat-msg bot">
+      {!hideReviewCards && (phase === "review" || phase === "approved" || phase === "returned") && <div className="chat-msg bot">
         {(phase === "review" || phase === "approved") && <div className="hitl">
           <div className="hh">⚑ {tr({ en: "HUMAN-IN-THE-LOOP REVIEW", ar: "مراجعة بشرية إلزامية", zh: "人工审批" })}</div>
           <div className="hb">{tr(cfg.reviewBody)}</div>
@@ -8293,6 +8294,7 @@ const WS_CFG_FPA = {
     ],
   ],
   orch: {
+    hideReviewCards: true,
     uc: "UC-06", run: "#6021", agent: { en: "Performance agent", ar: "وكيل الأداء", zh: "绩效智能体" },
     chips: ["scope: FY2026", "dept: Ministry", "policy: tgt 95%"],
     defaultPrompt: { en: "Explain why execution is at 64% vs the 95% target, identify the lagging Amanat, and draft a leadership acceleration note for review.", ar: "اشرح سبب التنفيذ عند 64% مقابل هدف 95%، وحدّد الأمانات المتأخرة، وصُغ مذكرة تسريع للقيادة للمراجعة.", zh: "解释为何执行率为 64%(目标 95%),识别滞后的阿玛纳,并起草供领导复核的加速说明。" },
