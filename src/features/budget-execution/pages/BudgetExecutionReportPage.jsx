@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BudgetExecutionSmartQuery } from "../components/BudgetExecutionSmartQuery.jsx";
 import { BudgetExecutionStoryline } from "../components/BudgetExecutionStoryline.jsx";
 import { UC17_BUDGET_ROWS } from "../data/uc17BudgetExecutionData.js";
 import { formatSar } from "../hooks/useBudgetExecutionMonitoring.js";
@@ -157,6 +158,7 @@ export function BudgetExecutionReportPage({ store }) {
         </div>
         <div className="rp-lock">🔒 {tr({ en: "Approved report versions are immutable; edits create a new UC10 copy with owner, date and source lineage.", ar: "النسخ المعتمدة غير قابلة للتعديل.", zh: "已批准报告版本不可变；修改会生成新的 UC10 副本并保留负责人、日期和来源链路。" })}</div>
       </div>
+      <BudgetExecutionSmartQuery tr={tr} pushLog={pushLog} page="uc10" />
     </div>
   );
 }

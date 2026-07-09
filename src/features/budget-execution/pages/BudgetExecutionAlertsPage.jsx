@@ -1,6 +1,7 @@
 import React from "react";
 import { BudgetExecutionPageHeader } from "../components/BudgetExecutionPageHeader.jsx";
 import { BudgetExecutionSection } from "../components/BudgetExecutionSection.jsx";
+import { BudgetExecutionSmartQuery } from "../components/BudgetExecutionSmartQuery.jsx";
 import { UC17_BUDGET_ROWS } from "../data/uc17BudgetExecutionData.js";
 import { formatSar } from "../hooks/useBudgetExecutionMonitoring.js";
 
@@ -104,6 +105,7 @@ export function BudgetExecutionAlertsPage({ store }) {
           </table>
         </div>
       </BudgetExecutionSection>
+      <BudgetExecutionSmartQuery tr={tr} pushLog={pushLog} page="uc02" />
     </div>
   );
 }

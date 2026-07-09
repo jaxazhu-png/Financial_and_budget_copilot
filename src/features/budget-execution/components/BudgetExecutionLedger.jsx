@@ -48,12 +48,11 @@ export function BudgetExecutionLedger({
               return (
                 <tr key={row.id} className={selected ? "on" : ""} onClick={() => setSelectedId(row.id)}>
                   <td>
-                    <span
-                      className={`be17-status-dot ${row.status}`}
-                      title={tr(row.statusDetail)}
-                      aria-label={tr(row.statusDetail)}
-                    />
-                    <b className={`be17-status-label ${row.status}`}>{tr(row.status === "risk" ? { en: "Risk", ar: "مخاطر", zh: "风险" } : { en: "Normal", ar: "طبيعي", zh: "正常" })}</b>
+                    <span className="be17-status-wrap" aria-label={tr(row.statusDetail)}>
+                      <span className={`be17-status-dot ${row.status}`} />
+                      <b className={`be17-status-label ${row.status}`}>{tr(row.status === "risk" ? { en: "Risk", ar: "مخاطر", zh: "风险" } : { en: "Normal", ar: "طبيعي", zh: "正常" })}</b>
+                      <span className="be17-status-tip">{tr(row.statusDetail)}</span>
+                    </span>
                   </td>
                   <td>
                     <strong>{row.code}</strong>

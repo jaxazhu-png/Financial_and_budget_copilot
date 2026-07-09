@@ -10,6 +10,7 @@ export const UC17_ANALYSIS_DIMENSIONS = [
   { key: "transfer", label: { en: "Transfer", ar: "المناقلة", zh: "转移" } },
   { key: "balance", label: { en: "Balance", ar: "الرصيد", zh: "余额" } },
   { key: "freeCost", label: { en: "Free cost", ar: "التكلفة الحرة", zh: "自由成本" } },
+  { key: "planVsActual", label: { en: "Plan vs actual", ar: "الخطة مقابل الفعلي", zh: "计划 vs 实际" } },
   { key: "spendRate", label: { en: "Spend rate", ar: "معدل الصرف", zh: "支出率" } },
   { key: "reconciliation", label: { en: "Etimad vs internal reconciliation", ar: "مطابقة اعتماد مع الأنظمة الداخلية", zh: "Etimad与内部系统对账" } },
 ];

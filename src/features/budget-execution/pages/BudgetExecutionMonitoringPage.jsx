@@ -4,6 +4,7 @@ import { BudgetExecutionAnalysisResults, BudgetExecutionApprovalDock } from "../
 import { BudgetExecutionFilters } from "../components/BudgetExecutionFilters.jsx";
 import { BudgetExecutionLedger } from "../components/BudgetExecutionLedger.jsx";
 import { BudgetExecutionSidePanel } from "../components/BudgetExecutionSidePanel.jsx";
+import { BudgetExecutionSmartQuery } from "../components/BudgetExecutionSmartQuery.jsx";
 import { BudgetExecutionStoryline } from "../components/BudgetExecutionStoryline.jsx";
 import { useBudgetExecutionMonitoring } from "../hooks/useBudgetExecutionMonitoring.js";
 
@@ -34,6 +35,8 @@ export function BudgetExecutionMonitoringPage({ store }) {
     selectedDimension,
     approvalState,
     submitApproval,
+    saveDraft,
+    exportPlan,
     openRoute,
   } = useBudgetExecutionMonitoring(store);
   const riskCount = rows.filter((row) => row.status === "risk").length;
@@ -114,9 +117,12 @@ export function BudgetExecutionMonitoringPage({ store }) {
         tr={tr}
         rows={analysisRows}
         dimension={selectedDimension}
+        selectedId={selectedId}
+        onSelectRow={setSelectedId}
       />
 
-      <BudgetExecutionApprovalDock tr={tr} state={approvalState} onSubmit={submitApproval} />
+      <BudgetExecutionApprovalDock tr={tr} state={approvalState} onSubmit={submitApproval} onSaveDraft={saveDraft} onExportPlan={exportPlan} />
+      <BudgetExecutionSmartQuery tr={tr} pushLog={store.pushLog} page="uc17" selectedRow={selectedRow} />
     </div>
   );
 }

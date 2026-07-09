@@ -8,6 +8,7 @@ const uniqueValues = (rows, key) => Array.from(new Set(rows.map((row) => row[key
 const matches = (value, filter) => filter === ALL || value === filter;
 
 const metricValueByDimension = (row, dimension) => {
+  if (dimension === "planVsActual") return row.planVsActual;
   if (dimension === "consumed") return row.metrics.invoice + row.metrics.paid;
   if (dimension === "reserved") return row.metrics.reserved;
   if (dimension === "reconciliation") return row.metrics.reconciliation;
@@ -15,12 +16,38 @@ const metricValueByDimension = (row, dimension) => {
 };
 
 const buildAnalysisTone = (row, dimension) => {
+  if (dimension === "planVsActual") {
+    if (row.planVsActual === "Over plan") return "risk";
+    if (row.planVsActual === "Under plan") return "opportunity";
+    return "normal";
+  }
   if (row.status === "risk") return "risk";
   if (dimension === "freeCost" || dimension === "balance") return "opportunity";
   return "normal";
 };
 
 const buildAnalysisConclusion = (row, dimension) => {
+  if (dimension === "planVsActual") {
+    if (row.planVsActual === "Over plan") {
+      return {
+        en: "Actual execution is ahead of plan and should be checked against payment schedule and approved ceiling before submission.",
+        ar: "التنفيذ الفعلي أعلى من الخطة ويجب فحصه مقابل خطة الدفع والسقف المعتمد قبل الإرسال.",
+        zh: "实际执行高于计划，提交前需对照付款计划和已批准上限复核。",
+      };
+    }
+    if (row.planVsActual === "Under plan") {
+      return {
+        en: "Actual execution is below plan. Available balance should be reviewed as a potential fiscal-space candidate.",
+        ar: "التنفيذ الفعلي أقل من الخطة ويجب مراجعة الرصيد كمرشح حيز مالي.",
+        zh: "实际执行低于计划，可用余额应作为潜在财政空间候选复核。",
+      };
+    }
+    return {
+      en: "Plan and actual execution are aligned. Keep monitoring through the normal ledger workflow.",
+      ar: "الخطة والتنفيذ الفعلي متوافقان. استمر بالمراقبة العادية.",
+      zh: "计划与实际执行匹配，保持常规台账监控。",
+    };
+  }
   if (dimension === "reconciliation" && row.metrics.reconciliation !== 0) {
     return {
       en: "Etimad and SAP/Asas timing difference must be classified before report generation.",
@@ -111,7 +138,7 @@ export function useBudgetExecutionMonitoring(store) {
     id: `${row.id}-${filters.dimension}`,
     row,
     dimension,
-    value: filters.dimension === "spendRate" ? `${row.metrics.spendRate}%` : formatSar(metricValueByDimension(row, filters.dimension)),
+    value: filters.dimension === "spendRate" ? `${row.metrics.spendRate}%` : filters.dimension === "planVsActual" ? metricValueByDimension(row, filters.dimension) : formatSar(metricValueByDimension(row, filters.dimension)),
     tone: buildAnalysisTone(row, filters.dimension),
     conclusion: buildAnalysisConclusion(row, filters.dimension),
   })), [filteredRows, filters.dimension, dimension]);
@@ -139,8 +166,18 @@ export function useBudgetExecutionMonitoring(store) {
   };
 
   const submitApproval = () => {
-    setApprovalState("submitted");
-    pushLog?.("Budget execution monitoring package submitted for approval");
+    setApprovalState("blocked");
+    pushLog?.({ en: "Budget execution approval blocked by funding gap", ar: "تم منع الاعتماد بسبب فجوة التمويل", zh: "预算执行提交审批因资金缺口被阻止" });
+  };
+
+  const saveDraft = () => {
+    setApprovalState("draft");
+    pushLog?.({ en: "Budget execution monitoring package saved as draft", ar: "تم حفظ المسودة", zh: "预算执行监控包已保存草稿" });
+  };
+
+  const exportPlan = () => {
+    setApprovalState("planned");
+    pushLog?.({ en: "Funding-gap allocation plan opened", ar: "فتح خطة سد الفجوة", zh: "资金缺口拨付计划已打开" });
   };
 
   return {
@@ -166,6 +203,8 @@ export function useBudgetExecutionMonitoring(store) {
     selectedDimension: dimension,
     approvalState,
     submitApproval,
+    saveDraft,
+    exportPlan,
     openRoute,
   };
 }
