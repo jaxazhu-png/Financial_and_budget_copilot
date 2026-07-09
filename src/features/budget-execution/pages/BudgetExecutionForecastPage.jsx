@@ -172,7 +172,7 @@ function buildForecast(period, commitmentType, actions) {
  * with the underlying records and explanations replaced by UC17 execution data.
  */
 export function BudgetExecutionForecastPage({ store }) {
-  const { tr, route, setRoute, setBackRoute, pushLog } = store;
+  const { tr, route, setRoute, setBackRoute, setDeptSub, pushLog } = store;
   const [draft, setDraft] = useState("draft");
   const [refreshTs, setRefreshTs] = useState("2026-07-07 10:04");
   const [entity, setEntity] = useState(0);
@@ -212,6 +212,12 @@ export function BudgetExecutionForecastPage({ store }) {
   const navigateStory = (targetRoute) => {
     if (targetRoute === "budexec-forecast") return;
     openRoute(targetRoute, `Budget execution forecast opened ${targetRoute}`);
+  };
+  const switchToPlanningForecast = () => {
+    setBackRoute(route || "budexec-forecast");
+    setDeptSub?.("plan");
+    pushLog?.({ en: "Switched perspective from G03 execution forecast to Planning Department funding forecast", ar: "تم التبديل إلى تنبؤ تمويل قسم التخطيط", zh: "视角已从 G03 执行预测切换到规划部门资金预测" });
+    setRoute("plnforecast");
   };
 
   const { months, chart } = buildForecast(period, commitmentType, actions);
@@ -341,6 +347,7 @@ export function BudgetExecutionForecastPage({ store }) {
           </span>
           <span className="fc-draft-meta">{tr({ en: "last refresh", ar: "آخر تحديث", zh: "最后刷新" })} {refreshTs} · {tr({ en: "until", ar: "حتى", zh: "至" })} {untilYear}</span>
           <span className="fc-draft-acts">
+            <button className="sc-mini" type="button" onClick={switchToPlanningForecast} title={tr({ en: "Switch to Planning Department · Funding forecast", ar: "التبديل إلى قسم التخطيط · تنبؤ التمويل", zh: "视角切换到规划部门 · 资金预测" })}>⇄ {tr({ en: "Switch to Planning Dept", ar: "التبديل إلى التخطيط", zh: "视角切换到规划部门" })}</button>
             <button className="sc-mini" type="button" onClick={refresh}>↻ {tr({ en: "Refresh", ar: "تحديث", zh: "刷新" })}</button>
             <button className="sc-mini primary" type="button" onClick={submit} disabled={draft === "submitted"}>{draft === "submitted" ? "✓ " + tr({ en: "Submitted", ar: "قُدّم", zh: "已提交" }) : tr({ en: "Submit for approval", ar: "تقديم", zh: "提交审批" })}</button>
           </span>

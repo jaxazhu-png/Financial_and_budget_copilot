@@ -1272,6 +1272,11 @@ const DEPARTMENTS = [
 function Sidebar() {
   const { t, tr, route, setRoute, deptSub, setDeptSub, setBackRoute } = useStore();
   const [openG, setOpenG] = useState("g02");
+  // Keep the accordion expanded on the active department's group, so cross-department
+  // navigations (e.g. G03 execution forecast -> G02 planning funding forecast) surface
+  // and highlight the target menu item instead of leaving the previous group open.
+  const activeGroup = DEPARTMENTS.find((g) => g.subs.some((s) => s.id === deptSub))?.key;
+  useEffect(() => { if (activeGroup && openG !== activeGroup) setOpenG(activeGroup); }, [activeGroup]);
   return (<div className="sidebar">
     <div className="sidebar-sub">{t("appName")}</div>
     <div className="dept">

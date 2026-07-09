@@ -42,8 +42,14 @@ const classifyCandidate = (row) => {
 
 export function BudgetExecutionFiscalSpacePage({ store }) {
   const { tr, route, setRoute, setBackRoute, pushLog } = store;
-  const [selectedScenario, setSelectedScenario] = useState("balanced");
-  const [decision, setDecision] = useState("draft");
+  const [plan, setPlan] = useState("balanced");
+  const [weights, setWeights] = useState({ available: 92, commitment: 74, forecast: 86, risk: 68, liquidity: 80, urgency: 76 });
+  const [reserve, setReserve] = useState(8);
+  const [revenue, setRevenue] = useState(2);
+  const [rolling, setRolling] = useState(true);
+  const [overrides, setOverrides] = useState({});
+  const [status, setStatus] = useState("draft");
+  const [done, setDone] = useState(null);
   const riskRows = UC17_BUDGET_ROWS.filter((row) => row.status === "risk");
   const openRoute = (targetRoute, logText) => {
     setBackRoute(route || "budexec-space");
@@ -65,45 +71,59 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
   const candidates = useMemo(() => UC17_BUDGET_ROWS
     .filter((row) => row.status === "risk" || row.metrics.available > 300)
     .map((row) => ({ ...row, candidate: classifyCandidate(row) })), []);
-  const scenarios = [
+  const planningOptions = [
     {
       id: "balanced",
-      recommended: true,
-      title: { en: "AI recommended · controlled transfer", ar: "موصى به · مناقلة مضبوطة", zh: "AI 推荐 · 受控转移" },
+      name: { en: "AI recommended · controlled transfer", ar: "موصى به · مناقلة مضبوطة", zh: "AI 推荐 · 受控转移" },
+      rec: 91,
+      note: { en: "Uses idle balances while protecting committed reserves and payment-plan coverage.", ar: "يستخدم الأرصدة الخاملة مع حماية الاحتياطيات.", zh: "使用闲置可用余额，同时保护已承诺准备和付款计划覆盖。" },
       source: "300070220 / 300090710",
-      target: { en: "Q4 payment pressure pool + G04 liquidity signal", ar: "مجمع ضغط الربع الرابع + إشارة G04", zh: "Q4 支付压力池 + G04 流动性信号" },
       amount: 352,
-      risk: { en: "Medium", ar: "متوسط", zh: "中" },
-      reason: { en: "Uses idle available balances while preserving committed reserves and payment-plan coverage.", ar: "يستخدم الأرصدة الخاملة مع حماية الاحتياطيات.", zh: "使用闲置可用余额，同时保护已承诺准备和付款计划覆盖。" },
-      impact: { en: "Covers UC04 SAR 230M forecast gap and leaves SAR 122M buffer.", ar: "يغطي فجوة UC04 ويترك احتياطياً.", zh: "覆盖 UC04 的 SAR 230M 预测缺口，并保留 SAR 122M 缓冲。" },
-    },
-    {
-      id: "conservative",
-      title: { en: "Conservative · hold risk lines", ar: "محافظ · حجز بنود المخاطر", zh: "保守 · 暂缓风险行" },
-      source: "300090710 only",
-      target: { en: "Central liquidity buffer", ar: "احتياطي السيولة المركزي", zh: "中央流动性缓冲" },
-      amount: 160,
-      risk: { en: "Low", ar: "منخفض", zh: "低" },
-      reason: { en: "Transfers only low-risk available balance and waits for owner confirmation on stalled commitments.", ar: "ينقل الرصيد منخفض المخاطر فقط.", zh: "仅转移低风险可用余额，等待滞留承诺负责人确认。" },
-      impact: { en: "Reduces pressure but leaves SAR 70M of UC04 gap unresolved.", ar: "يخفض الضغط ويبقي جزءاً من الفجوة.", zh: "降低压力，但仍有 SAR 70M UC04 缺口未解决。" },
-    },
-    {
-      id: "aggressive",
-      title: { en: "Aggressive · release all idle pool", ar: "مكثف · تحرير كامل الرصيد الخامل", zh: "积极 · 释放全部闲置池" },
-      source: "300060010 / 300040110 / 300070220",
-      target: { en: "Payment pressure + short-term liquidity", ar: "ضغط المدفوعات + السيولة", zh: "支付压力 + 短期流动性" },
-      amount: 684,
-      risk: { en: "High", ar: "مرتفع", zh: "高" },
-      reason: { en: "Maximizes available-space reuse but touches lines with open SAP/Etimad timing differences.", ar: "يزيد إعادة الاستخدام لكنه يمس فروقات توقيت.", zh: "最大化复用可用空间，但涉及 SAP/Etimad 时间差异行。" },
-      impact: { en: "Clears forecast gap and creates larger buffer; requires stronger audit note.", ar: "يغلق الفجوة ويتطلب مذكرة تدقيق أقوى.", zh: "清除预测缺口并形成更大缓冲，但需要更强审计说明。" },
+      weights: { available: 92, commitment: 74, forecast: 86, risk: 68, liquidity: 80, urgency: 76 },
     },
   ];
-  const activeScenario = scenarios.find((item) => item.id === selectedScenario) || scenarios[0];
-  const scenarioSpace = availableFiscalSpace + activeScenario.amount - FORECAST_PRESSURE;
-
-  const approveScenario = () => {
-    setDecision("approved");
-    pushLog?.({ en: "G03-UC07 transfer scenario approved as independent draft copy", ar: "تم اعتماد سيناريو UC07 كنسخة مستقلة", zh: "G03-UC07 转移方案已作为独立副本批准" });
+  const activePlan = planningOptions.find((item) => item.id === plan) || planningOptions[0];
+  const weightLabels = [
+    ["available", { en: "Available idle balance", ar: "الرصيد الخامل المتاح", zh: "可用闲置余额" }, 100],
+    ["commitment", { en: "Committed reserve protection", ar: "حماية احتياطي الالتزام", zh: "承诺准备保护" }, 100],
+    ["forecast", { en: "UC04 forecast pressure", ar: "ضغط تنبؤ UC04", zh: "UC04 预测压力" }, 100],
+    ["risk", { en: "Audit / timing risk", ar: "مخاطر التدقيق والتوقيت", zh: "审计/时间差风险" }, 100],
+    ["liquidity", { en: "G04 liquidity signal", ar: "إشارة سيولة G04", zh: "G04 流动性信号" }, 100],
+    ["urgency", { en: "Payment urgency", ar: "إلحاح الدفع", zh: "付款紧迫度" }, 100],
+  ];
+  const setSlider = (key, value) => {
+    setWeights((current) => ({ ...current, [key]: value }));
+    setPlan("");
+    setStatus("draft");
+  };
+  const applyPlan = (option) => {
+    setPlan(option.id);
+    setWeights(option.weights);
+    setStatus("draft");
+    setDone(null);
+  };
+  const maxWeight = Math.max(...Object.values(weights), 1);
+  const focusWeights = weightLabels.filter(([key]) => weights[key] === maxWeight).map(([, label]) => tr(label));
+  const baseTransfer = Object.values(overrides).reduce((total, value) => total + value, activePlan.amount);
+  const adjustedTransfer = Math.max(0, +(baseTransfer * (1 + revenue / 100) * (1 - reserve / 100)).toFixed(0));
+  const postTransferSpace = availableFiscalSpace + adjustedTransfer - FORECAST_PRESSURE;
+  const forecastSpace = rolling ? postTransferSpace - 70 : postTransferSpace;
+  const deficitCount = postTransferSpace < 0 ? 1 : 0;
+  const surplusCount = postTransferSpace >= 0 ? candidates.length : Math.max(candidates.length - 1, 0);
+  const paperRisk = rolling && postTransferSpace > 0 && forecastSpace < postTransferSpace ? 1 : 0;
+  const detailRows = candidates.slice(0, 5).map((row, index) => {
+    const recommended = index === 0 ? adjustedTransfer * 0.45 : index === 1 ? adjustedTransfer * 0.28 : Math.min(row.metrics.available, adjustedTransfer * 0.12);
+    const allocation = overrides[row.id] ?? Math.round(recommended);
+    const occupied = row.metrics.committed + row.metrics.invoice;
+    const space = allocation - Math.min(occupied * 0.08, 90);
+    return { row, allocation, occupied, space, status: space < 0 ? "deficit" : space < 80 ? "tight" : "surplus" };
+  });
+  const detailTotal = detailRows.reduce((total, item) => total + item.allocation, 0);
+  const allocationDelta = adjustedTransfer - activePlan.amount;
+  const aiSummary = {
+    en: `Current plan "${tr(activePlan.name)}" reallocates ${formatSar(adjustedTransfer)} from UC17 execution balances with ${reserve}% reserve. Key change: ${formatSar(allocationDelta)} vs the base scenario. Risk items: ${deficitCount ? "1 funding gap remains" : "no funding gap"}${paperRisk ? ", 1 paper-surplus line turns tight under rolling forecast" : ", rolling forecast remains covered"}. Recommendation: ${deficitCount ? "fund the gap from surplus before approval" : "submit as an independent scenario copy after review"}.`,
+    ar: `تعيد الخطة الحالية توزيع ${formatSar(adjustedTransfer)} مع احتياطي ${reserve}%.`,
+    zh: `当前方案「${tr(activePlan.name)}」从 UC17 执行余额中重分配 **${formatSar(adjustedTransfer)}**，储备比例 **${reserve}%**。**关键变化**：相对基础方案 ${allocationDelta >= 0 ? "+" : ""}${formatSar(allocationDelta)}；权重侧重 **${focusWeights.join(" / ")}**。**风险项**：${deficitCount ? "仍有 1 个资金缺口" : "无资金缺口"}${paperRisk ? "，1 条纸面盈余在滚动预测下转紧张" : "，滚动预测下仍可覆盖"}。**优化建议**：${deficitCount ? "先从盈余资金批量补足缺口，再提交审批" : "复核后作为独立场景提交审批"}。`,
   };
 
   return (
@@ -119,25 +139,14 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
         onNavigate={navigateStory}
       />
 
-      <section className="bp-aisum be17-ai-summary be17-space-summary">
-        <span className="bp-aisum-ic">∑</span>
-        <div className="bp-aisum-tx be17-aisum-tx">
-          <span className="bp-aisum-lab">{tr({ en: "REAL-TIME FISCAL SPACE", ar: "الحيز المالي الفوري", zh: "实时财务空间" })}</span>
-          <span className="be17-ai-line">
-            {tr({
-              en: `Available fiscal space = budget ceiling ${formatSar(budgetCeiling)} − deductions ${formatSar(deductions)} − established liabilities ${formatSar(establishedLiabilities)} − payment plans / expected claims / carry-over debt ${formatSar(paymentPlanAmount)} = ${formatSar(availableFiscalSpace)}.`,
-              ar: `الحيز المالي = السقف ${formatSar(budgetCeiling)} − الخصومات ${formatSar(deductions)} − الالتزامات ${formatSar(establishedLiabilities)} − خطط الدفع والمطالبات والدين ${formatSar(paymentPlanAmount)} = ${formatSar(availableFiscalSpace)}.`,
-              zh: `可用资金空间 = 预算上限 ${formatSar(budgetCeiling)} − 扣除项 ${formatSar(deductions)} − 既定负债 ${formatSar(establishedLiabilities)} − 付款计划/预期索赔/结转债务 ${formatSar(paymentPlanAmount)} = ${formatSar(availableFiscalSpace)}。`,
-            })}
-          </span>
+      <div className="bp-aisum be17-space-summary">
+        <span className="bp-aisum-ic">✦</span>
+        <div className="bp-aisum-tx">
+          <span className="bp-aisum-lab">{tr({ en: "AI PLAN SUMMARY", ar: "ملخص خطة الذكاء", zh: "AI 方案摘要" })}</span>
+          <span>{tr(aiSummary)}</span>
         </div>
-        <div className="be17-summary-side">
-          <div className="be17-summary-actionbar">
-            <button className="btn sm" type="button" onClick={() => openRoute("budexec-reports", "UC07 financial impact report generated")}>{tr({ en: "Generate financial impact report", ar: "إنشاء تقرير الأثر المالي", zh: "生成财务影响报告" })}</button>
-          </div>
-          <span className="bp-agent bp-aisum-ag">{tr({ en: "Budget Optimization Agent", ar: "وكيل تحسين الميزانية", zh: "Budget Optimization Agent" })}</span>
-        </div>
-      </section>
+        <span className="bp-agent bp-aisum-ag">{tr({ en: "Rolling Forecasting Agent", ar: "وكيل التنبؤ المتجدد", zh: "Rolling Forecasting Agent" })}</span>
+      </div>
 
       <div className="g03-kpi-grid be17-space-kpis">
         <div className="g03-kpi good"><span>{tr({ en: "Available fiscal space", ar: "الحيز المالي المتاح", zh: "可用资金空间" })}</span><b>{formatSar(availableFiscalSpace)}</b><small>{tr({ en: "ceiling minus deductions, liabilities and payment obligations", ar: "السقف بعد الخصومات والالتزامات", zh: "上限扣除占用后余额" })}</small></div>
@@ -176,60 +185,104 @@ export function BudgetExecutionFiscalSpacePage({ store }) {
         </div>
       </BudgetExecutionSection>
 
-      <BudgetExecutionSection
-        tr={tr}
-        title={{ en: "AI transfer / reallocation scenarios", ar: "سيناريوهات المناقلة وإعادة التوزيع", zh: "AI 转移/重分配场景卡片" }}
-        sub={{ en: "Each option is saved as an independent scenario copy and never overwrites the approved ceiling.", ar: "كل خيار محفوظ كنسخة مستقلة ولا يستبدل السقف المعتمد.", zh: "每个方案保留为独立场景，不覆盖已批准上限。" }}
-        agent={{ en: "Agent: Budget Optimization Agent", ar: "الوكيل: تحسين الميزانية", zh: "Agent：Budget Optimization Agent" }}
-      >
-        <div className="bp-scenario-grid be17-scenario-grid">
-          {scenarios.map((scenario) => (
-            <button key={scenario.id} className={`bp-scenario-card ${selectedScenario === scenario.id ? "on" : ""}`} type="button" onClick={() => setSelectedScenario(scenario.id)}>
-              <div className="bp-scenario-head"><span>{tr(scenario.title)}</span>{scenario.recommended && <em>{tr({ en: "Recommended", ar: "موصى به", zh: "推荐" })}</em>}</div>
-              <p>{tr(scenario.reason)}</p>
-              <div className="bp-scenario-metrics">
-                <div><small>{tr({ en: "Source", ar: "المصدر", zh: "资金来源" })}</small><b>{scenario.source}</b></div>
-                <div><small>{tr({ en: "Amount", ar: "المبلغ", zh: "金额" })}</small><b>{formatSar(scenario.amount)}</b></div>
-                <div><small>{tr({ en: "Risk", ar: "المخاطر", zh: "风险等级" })}</small><b>{tr(scenario.risk)}</b></div>
-              </div>
-              <strong>{tr(scenario.impact)}</strong>
+      <div className="uf-sec bp-planbox be17-planbox">
+        <div className="uf-h">{tr({ en: "AI planning options & allocation weights", ar: "خيارات التخطيط وأوزان التوزيع", zh: "AI 规划方案与分配权重" })} <span className="bp-agent">{tr({ en: "Budget Optimization Agent · live", ar: "وكيل تحسين الميزانية · حي", zh: "Budget Optimization Agent · 实时" })}</span></div>
+        <div className="bp-tabs">
+          {planningOptions.map((option) => (
+            <button key={option.id} className={`bp-tab${plan === option.id ? " on" : ""}`} type="button" onClick={() => applyPlan(option)}>
+              <span className="bp-tab-n">{tr(option.name)}</span>
+              <span className={`bp-tab-rec${option.rec >= 88 ? " top" : ""}`}>{tr({ en: "rec", ar: "توصية", zh: "推荐指数" })} {option.rec}</span>
             </button>
           ))}
         </div>
-      </BudgetExecutionSection>
-
-      <div className="be17-space-bottom">
-        <BudgetExecutionSection
-          tr={tr}
-          title={{ en: "Selected scenario impact", ar: "أثر السيناريو المختار", zh: "选中方案影响" }}
-          sub={{ en: "Funding source, impact target, risk level and post-transfer fiscal position.", ar: "المصدر والهدف والخطر والحيز بعد المناقلة.", zh: "展示资金来源、影响对象、风险等级和转移后的财政空间。" }}
-          agent={{ en: "Agent: Financial Impact Agent", ar: "الوكيل: الأثر المالي", zh: "Agent：Financial Impact Agent" }}
-        >
-          <div className="be17-space-impact">
-            <div><span>{tr({ en: "Funding source", ar: "مصدر التمويل", zh: "资金来源" })}</span><b>{activeScenario.source}</b></div>
-            <div><span>{tr({ en: "Impact target", ar: "الهدف", zh: "影响对象" })}</span><b>{tr(activeScenario.target)}</b></div>
-            <div><span>{tr({ en: "Scenario amount", ar: "مبلغ السيناريو", zh: "方案金额" })}</span><b>{formatSar(activeScenario.amount)}</b></div>
-            <div><span>{tr({ en: "Post-transfer space", ar: "الحيز بعد المناقلة", zh: "转移后空间" })}</span><b>{formatSar(scenarioSpace)}</b></div>
+        <div className="bp-plan-ai bp-plan-ai-full">
+          <div className="bp-plan-ai-h"><span className="bp-plan-ai-ic">✦</span>{tr({ en: "AI plan interpretation", ar: "تفسير خطة الذكاء", zh: "AI 方案解读" })}</div>
+          <div className="bp-plan-ai-b">
+            {tr({
+              en: `${tr(activePlan.name)} uses ${activePlan.source} and emphasizes ${focusWeights.join(" / ")}. It covers the UC04 ${formatSar(FORECAST_PRESSURE)} pressure with ${formatSar(Math.max(postTransferSpace, 0))} post-transfer buffer.`,
+              ar: `الخطة تستخدم ${activePlan.source}.`,
+              zh: `「${tr(activePlan.name)}」使用 ${activePlan.source} 作为资金来源，权重侧重 ${focusWeights.join(" / ")}。该方案覆盖 UC04 的 ${formatSar(FORECAST_PRESSURE)} 压力，并形成 ${formatSar(Math.max(postTransferSpace, 0))} 的转移后缓冲。`,
+            })}
           </div>
-        </BudgetExecutionSection>
-
-        <BudgetExecutionSection
-          tr={tr}
-          title={{ en: "Human approval panel", ar: "لوحة الاعتماد البشري", zh: "人工审批面板" }}
-          sub={{ en: "Authorized staff can approve, return or keep the scenario as a draft.", ar: "اعتماد أو إرجاع أو حفظ كمسودة.", zh: "授权人员可审批、退回或保存草稿。" }}
-          agent={{ en: "Agent: Approval Orchestrator", ar: "الوكيل: منسق الاعتماد", zh: "Agent：Approval Orchestrator" }}
-        >
-          <div className={`be17-space-approval ${decision}`}>
-            <strong>{decision === "approved" ? tr({ en: "Scenario approved as independent copy", ar: "اعتمد السيناريو كنسخة مستقلة", zh: "方案已作为独立副本批准" }) : decision === "returned" ? tr({ en: "Scenario returned for revision", ar: "أعيد السيناريو للتعديل", zh: "方案已退回修改" }) : tr({ en: "Scenario draft ready", ar: "مسودة السيناريو جاهزة", zh: "方案草稿已就绪" })}</strong>
-            <p>{tr({ en: "Approved ceilings remain unchanged. This scenario is stored as G03-UC07-SCN-2026-Q2 and can be attached to the UC10 financial impact report.", ar: "لا يتغير السقف المعتمد. تُحفظ النسخة ويمكن إرفاقها بتقرير UC10.", zh: "已批准上限不被覆盖。本方案保存为 G03-UC07-SCN-2026-Q2，可附入 UC10 财务影响报告。" })}</p>
-            <div className="be17-space-actions">
-              <button className="btn sm" type="button" onClick={approveScenario}>{tr({ en: "Approve scenario", ar: "اعتماد السيناريو", zh: "审批方案" })}</button>
-              <button className="btn ghost sm" type="button" onClick={() => setDecision("returned")}>{tr({ en: "Return", ar: "إرجاع", zh: "退回" })}</button>
-              <button className="btn secondary sm" type="button" onClick={() => setDecision("draft")}>{tr({ en: "Save draft", ar: "حفظ المسودة", zh: "保存草稿" })}</button>
-              <button className="btn sm" type="button" onClick={() => openRoute("budexec-reports", "UC07 financial impact report generated")}>{tr({ en: "Generate financial impact report", ar: "إنشاء تقرير الأثر المالي", zh: "生成财务影响报告" })}</button>
+        </div>
+        <div className="bp-planrow">
+          <div className="bp-pcell bp-locked">
+            <div className="bp-diff-h">{tr({ en: "Allocation weights · live", ar: "أوزان التوزيع · حي", zh: "分配权重 · 实时" })}</div>
+            {weightLabels.map(([key, label, max]) => (
+              <div className="bp-slider" key={key}>
+                <span className="bp-slk">{tr(label)}</span>
+                <input type="range" min="0" max={max} value={weights[key]} disabled onChange={(event) => setSlider(key, +event.target.value)} />
+                <span className="bp-slv">{weights[key]}</span>
+              </div>
+            ))}
+            <div className="bp-slider"><span className="bp-slk">{tr({ en: "Reserve %", ar: "الاحتياطي %", zh: "储备金比例" })}</span><input type="range" min="0" max="20" value={reserve} disabled onChange={(event) => { setReserve(+event.target.value); setStatus("draft"); }} /><span className="bp-slv">{reserve}%</span></div>
+            <div className="bp-slider"><span className="bp-slk">{tr({ en: "Revenue forecast %", ar: "توقع الإيراد %", zh: "收入预测" })}</span><input type="range" min="-5" max="8" value={revenue} disabled onChange={(event) => { setRevenue(+event.target.value); setStatus("draft"); }} /><span className="bp-slv">{revenue > 0 ? "+" : ""}{revenue}%</span></div>
+          </div>
+          <div className="bp-pcell">
+            <div className="bp-diff-h">{tr({ en: "Weight-dimension profile", ar: "ملف بُعد الأوزان", zh: "权重维度画像" })}</div>
+            <div className="bp-wbars">{weightLabels.map(([key, label]) => <div className="bp-wbar" key={key}><span className="bp-wbar-k">{tr(label)}</span><div className="bp-wbar-t"><i className={weights[key] === maxWeight ? "top" : ""} style={{ width: `${(weights[key] / maxWeight) * 100}%` }} /></div><b>{weights[key]}</b></div>)}</div>
+          </div>
+          <div className="bp-pcell">
+            <div className="bp-diff-h">{tr({ en: "Rolling forecast", ar: "التنبؤ المتجدد", zh: "滚动预测" })} <label className="bp-toggle"><input type="checkbox" checked={rolling} onChange={(event) => { setRolling(event.target.checked); setStatus("draft"); }} /> {tr({ en: "Apply", ar: "تطبيق", zh: "应用" })}</label></div>
+            <div className="bp-roll">
+              <div className="bp-roll-row"><span>{tr({ en: "Paper space", ar: "الحيز الورقي", zh: "纸面空间" })}</span><b>{formatSar(postTransferSpace)}</b></div>
+              <div className="bp-roll-row"><span>{tr({ en: "Forecast space", ar: "الحيز المتوقع", zh: "预测空间" })}</span><b className={forecastSpace < postTransferSpace ? "warn" : ""}>{formatSar(forecastSpace)}</b></div>
+              <div className="bp-roll-d">{tr({ en: "Apply rolling forecast to avoid over-estimating fiscal space from idle balances.", ar: "طبّق التنبؤ لتجنب تضخيم الحيز.", zh: "应用滚动预测，避免高估闲置余额形成的财政空间。" })}</div>
             </div>
           </div>
-        </BudgetExecutionSection>
+          <div className="bp-pcell">
+            <div className="bp-diff-h">{tr({ en: "Version comparison (vs base)", ar: "مقارنة النسخ", zh: "版本对比(相对基础方案)" })}</div>
+            <div className="bp-cmp-sum"><b className={allocationDelta >= 0 ? "up" : "down"}>{allocationDelta >= 0 ? "+" : ""}{formatSar(allocationDelta)}</b> {tr({ en: "vs base scenario", ar: "مقابل الأساس", zh: "对比基础方案" })}</div>
+            {detailRows.slice(0, 4).map((item) => <div className="bp-cmp-row" key={item.row.id}><span className="bp-cmp-n">{item.row.code}</span><span className="bp-cmp-bars"><i className={item.space >= 0 ? "up" : "down"} style={{ width: `${Math.min(100, Math.abs(item.space) / 3) + 18}%` }} /></span><span className={`bp-cmp-d ${item.space >= 0 ? "up" : "down"}`}>{item.space >= 0 ? "+" : ""}{formatSar(item.space)}</span></div>)}
+          </div>
+        </div>
+        <div className="bp-planbox-tbl">
+          <div className="bp-sub-h">↳ {tr({ en: "Budget detail per execution line", ar: "تفصيل الميزانية لكل بند تنفيذ", zh: "预算明细表(按执行预算行展开)" })} {rolling && <span className="bp-fc-tag">{tr({ en: "rolling forecast", ar: "تنبؤ متجدد", zh: "滚动预测口径" })}</span>}</div>
+          <div className="bp-tbl-tools">
+            <span className="bp-tbl-tools-l">{tr({ en: "Batch adjust", ar: "تعديل جماعي", zh: "批量调整" })}:</span>
+            <button type="button" onClick={() => setOverrides(Object.fromEntries(detailRows.map((item) => [item.row.id, Math.max(0, Math.round(item.allocation * 0.98))])))}>−2%</button>
+            <button type="button" onClick={() => setOverrides(Object.fromEntries(detailRows.map((item) => [item.row.id, Math.round(item.allocation * 1.02)])))}>+2%</button>
+            <button className="bp-tbl-realloc" type="button" onClick={() => { setOverrides(Object.fromEntries(detailRows.map((item) => [item.row.id, Math.round(item.allocation + Math.max(0, -item.space))]))); setStatus("draft"); }}>⇄ {tr({ en: "Fund gap from surplus", ar: "تغطية الفجوة من الفائض", zh: "盈余补缺口" })}</button>
+            <button type="button" onClick={() => { setOverrides({}); setStatus("draft"); }}>↺ {tr({ en: "Reset", ar: "إعادة", zh: "复位" })}</button>
+          </div>
+          <table className="wb-table bp-table">
+            <thead><tr><th>{tr({ en: "Budget line", ar: "بند الميزانية", zh: "预算行" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Budget ceiling", ar: "سقف الميزانية", zh: "预算上限" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Deductions", ar: "الخصومات", zh: "扣除项" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Committed", ar: "ملتزم", zh: "已承诺" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Payment plan", ar: "خطة الدفع", zh: "支付计划" })}</th><th style={{ textAlign: "end" }}>{tr({ en: "Surplus / realloc", ar: "الفائض / إعادة التوزيع", zh: "盈余再分配" })}</th></tr></thead>
+            <tbody>{detailRows.map((item) => <tr key={item.row.id} className={item.status}><td>{item.row.code}<small>{tr(item.row.name)}</small></td><td className="bp-mono" style={{ textAlign: "end" }}><input className="bp-edit" value={item.allocation} onChange={(event) => { const value = parseFloat(event.target.value); setOverrides((current) => ({ ...current, [item.row.id]: Number.isNaN(value) ? 0 : value })); setStatus("draft"); }} /></td><td className="bp-mono" style={{ textAlign: "end", color: "#8a5a2b" }}>−{formatSar(item.occupied)}</td><td className="bp-mono" style={{ textAlign: "end" }}>{formatSar(item.row.metrics.committed)}</td><td className="bp-mono" style={{ textAlign: "end" }}>{formatSar(item.row.metrics.invoice)}</td><td className="bp-mono" style={{ textAlign: "end" }}><span className={`bp-realloc-cell ${item.status}`}>{item.space >= 0 ? "+" : ""}{formatSar(item.space)}<span className={`bp-st ${item.status}`}>{tr(item.status === "surplus" ? { en: "surplus", ar: "فائض", zh: "盈余" } : item.status === "deficit" ? { en: "deficit", ar: "عجز", zh: "赤字" } : { en: "tight", ar: "ضيق", zh: "紧张" })}</span></span></td></tr>)}</tbody>
+            <tfoot><tr className="bp-drv-foot"><td>{tr({ en: "Σ Total", ar: "الإجمالي", zh: "合计" })}</td><td className="bp-mono" style={{ textAlign: "end", fontWeight: 800 }}>{formatSar(detailTotal)}</td><td className="bp-mono" style={{ textAlign: "end" }}>−{formatSar(detailRows.reduce((total, item) => total + item.occupied, 0))}</td><td className="bp-mono" style={{ textAlign: "end" }}>{formatSar(establishedLiabilities)}</td><td className="bp-mono" style={{ textAlign: "end" }}>{formatSar(sumMetric("invoice"))}</td><td className="bp-mono" style={{ textAlign: "end", fontWeight: 800, color: postTransferSpace < 0 ? "var(--danger)" : "#166534" }}>{postTransferSpace >= 0 ? "+" : ""}{formatSar(postTransferSpace)}</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div className="uf-sec bp-actions be17-space-decision">
+        <div className="uf-h">{tr({ en: "Decision", ar: "القرار", zh: "决定 / 审核" })} <span className="bp-agent">{tr({ en: "Approval Orchestrator", ar: "منسق الاعتماد", zh: "Approval Orchestrator" })}</span></div>
+        {status === "submitted" ? (
+          <div className="bp-next">
+            <div className="bp-next-h">✓ {tr({ en: "Submitted for approval", ar: "قُدّم للاعتماد", zh: "已提交审批" })}</div>
+            <div className="bp-next-b">{tr({ en: "Scenario G03-UC07-SCN-2026-Q2 routed to approval owners with UC17/UC04/UC02 evidence attached.", ar: "تم توجيه السيناريو للاعتماد.", zh: "场景 G03-UC07-SCN-2026-Q2 已提交给审批负责人，并附带 UC17/UC04/UC02 证据。" })}</div>
+            <div className="bp-next-owner">👤 Aisha Al-Dosari · {tr({ en: "Budget Execution Planner", ar: "مخططة تنفيذ الميزانية", zh: "预算执行规划员" })} · 📞 +966 50 771 3329</div>
+            <button className="dw-btn" type="button" onClick={() => setStatus("draft")}>↺ {tr({ en: "Recall to draft", ar: "استرجاع", zh: "撤回为草稿" })}</button>
+          </div>
+        ) : (
+          <>
+            <div className="pc-appr-sum">
+              <div className="pc-appr-l">{tr({ en: "Approval object · fiscal-space allocation summary", ar: "موضوع الاعتماد · ملخص الحيز المالي", zh: "审批对象 · 财政空间分配汇总" })}</div>
+              <div className="pc-appr-row">
+                <div className="pc-appr-cell"><span>{tr({ en: "Plan", ar: "الخطة", zh: "方案" })}</span><b className="pc-appr-nm">{tr(activePlan.name)}</b></div>
+                <div className="pc-appr-cell"><span>{tr({ en: "Σ BUDGET CEILING", ar: "Σ سقف الميزانية", zh: "Σ 预算上限" })}</span><b>{formatSar(budgetCeiling)}</b></div>
+                <div className="pc-appr-cell"><span>{tr({ en: "Σ DEDUCTIONS", ar: "Σ الخصومات", zh: "Σ 扣除项" })}</span><b style={{ color: "#b06a1f" }}>−{formatSar(deductions)}</b></div>
+                <div className="pc-appr-cell"><span>{tr({ en: "POST-TRANSFER SPACE", ar: "الحيز بعد المناقلة", zh: "转移后空间" })}</span><b>{formatSar(postTransferSpace)}</b></div>
+              </div>
+            </div>
+            {deficitCount > 0 && <div className="bp-defwarn">⚠ {tr({ en: "Deficit present — submission blocked. Fund the gap from surplus, then submit.", ar: "يوجد عجز — التقديم محظور.", zh: "存在缺口 — 提交被阻止。请先从盈余资金补足缺口，再提交。" })}</div>}
+            <div className="bp-act-btns">
+              <button className="dw-btn primary" type="button" disabled={deficitCount > 0} onClick={() => { setStatus("submitted"); pushLog?.({ en: "G03-UC07 fiscal-space scenario submitted", ar: "تم تقديم سيناريو UC07", zh: "G03-UC07 财政空间方案已提交审批" }); }}>{tr({ en: "Submit for approval", ar: "تقديم للاعتماد", zh: "提交审批" })}</button>
+              <button className="dw-btn" type="button" onClick={() => setDone({ en: "Draft saved · G03-UC07-DRAFT", ar: "حُفظت المسودة", zh: "草稿已保存 · G03-UC07-DRAFT" })}>{tr({ en: "Save draft", ar: "حفظ مسودة", zh: "保存草稿" })}</button>
+              <button className="dw-btn" type="button" onClick={() => setDone({ en: "Plan exported (PDF/Excel)", ar: "صُدّرت", zh: "方案已导出(PDF/Excel)" })}>{tr({ en: "Export plan", ar: "تصدير", zh: "导出方案" })}</button>
+              <button className="dw-btn primary" type="button" onClick={() => openRoute("budexec-reports", "UC07 financial impact report generated")}>{tr({ en: "Generate financial impact report", ar: "إنشاء تقرير الأثر المالي", zh: "生成财务影响报告" })}</button>
+            </div>
+            {done && <div className="bp-done">✓ {tr(done)}</div>}
+          </>
+        )}
       </div>
       <BudgetExecutionSmartQuery tr={tr} pushLog={pushLog} page="uc07" />
     </div>

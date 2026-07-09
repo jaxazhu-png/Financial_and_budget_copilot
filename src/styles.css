@@ -3454,8 +3454,14 @@ html[dir="rtl"] .bp-flow-pill:not(:last-child)::after{content:"➜";right:auto;l
 .bp-ab-subtxt{font-size:11px;color:#166534;font-weight:700}
 .bp-ab-done{font-size:11px;color:#166534;font-weight:700}
 /* UC-07 outer frames for the four detail cells + budget-detail table */
-.bp-pcell{border:1px solid #e2e8e5;border-radius:11px;background:#fbfcfb;padding:12px 13px}
+.bp-pcell{border:1px solid #e2e8e5;border-radius:11px;background:#fbfcfb;padding:12px 13px;user-select:none;-webkit-user-select:none}
 .bp-pcell .bp-diff-h{margin-top:0}
+/* Allocation weights card locked to a read-only display (G03-UC07): grey text + sliders, no interaction */
+.bp-pcell.bp-locked{background:#f3f4f6;border-color:#e3e6ea}
+.bp-pcell.bp-locked .bp-diff-h{color:#9aa3ad;border-color:#e7e9ed}
+.bp-pcell.bp-locked .bp-slk,
+.bp-pcell.bp-locked .bp-slv{color:#9aa3ad}
+.bp-pcell.bp-locked input[type=range]{accent-color:#b6bdc6;cursor:not-allowed}
 .bp-planbox-tbl{border:1px solid #e2e8e5 !important;border-radius:11px;background:#fbfcfb;padding:13px 14px;margin-top:14px}
 .bp-planbox-tbl .bp-sub-h{margin-top:0}
 /* UC-01 redesign */
