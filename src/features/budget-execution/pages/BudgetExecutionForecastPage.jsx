@@ -181,7 +181,7 @@ export function BudgetExecutionForecastPage({ store }) {
   const [commitmentType, setCommitmentType] = useState("all");
   const [plansMode, setPlansMode] = useState("complete");
   const [debtResolution, setDebtResolution] = useState(0);
-  const [actions, setActions] = useState({ defer: false, accel: false, supp: false, realloc: false });
+  const [actions] = useState({ defer: false, accel: false, supp: false, realloc: false });
   const [selectedType, setSelectedType] = useState(null);
   const [mitigation, setMitigation] = useState({});
   const [actionMessage, setActionMessage] = useState(null);
@@ -263,10 +263,6 @@ export function BudgetExecutionForecastPage({ store }) {
   const available = sumMetric("available");
 
   const setFlash = (message, column) => setFindMessage({ message, column });
-  const toggleAction = (key, label) => {
-    setActions((current) => ({ ...current, [key]: !current[key] }));
-    setFlash(label, "R");
-  };
   const refresh = () => {
     setRefreshTs("2026-07-07 " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
     setDraft("draft");
@@ -302,12 +298,6 @@ export function BudgetExecutionForecastPage({ store }) {
       : { icon: "✓", key: "gap", title: fcT("Within ceiling", "ضمن السقف", "上限内"), detail: fcT("Expected need stays within capacity.", "الحاجة ضمن القدرة.", "预期需求全程在上限内。") },
     { icon: "◎", key: "conv", title: fcT("Conversion risk", "خطر التحويل", "转化风险"), detail: fcT("IDIQ and stale commitments are treated as probabilistic expectations.", "تُحسب التزامات IDIQ باحتمال.", "IDIQ 与长期承诺按概率化预期计入。") },
     { icon: "◆", key: "market", title: fcT("Execution-cost signal", "إشارة تكلفة التنفيذ", "执行成本信号"), detail: fcT("Risk rows lift cost-reimbursement pressure in the forecast.", "بنود المخاطر ترفع ضغط التكلفة.", "风险行推高成本补偿类压力。") },
-  ];
-  const recommendations = [
-    { key: "defer", title: fcT("Modify payment plan (smooth peak)", "تعديل خطة الدفع", "调整支付计划(平滑峰值)"), label: fcT("Payment plan modified — near-term demand deferred.", "تم تعديل الخطة.", "已调整支付计划 —— 近期需求后移。") },
-    { key: "accel", title: fcT("Expedite invoice / payment evidence (+6%)", "تسريع الفاتورة", "加速发票/付款证据(+6%)"), label: fcT("Evidence accelerated — capacity +6%.", "تم التسريع.", "已加速证据流转 —— 能力 +6%。") },
-    { key: "supp", title: fcT("Request budget increase", "طلب زيادة الميزانية", "申请追加预算"), label: fcT("Increase requested — buffer added.", "تم طلب الزيادة.", "已申请追加 —— 增加缓冲。") },
-    { key: "realloc", title: fcT("Transfer funds to pressure pool (+4%)", "مناقلة أموال", "调剂资金至压力池(+4%)"), label: fcT("Funds transferred — capacity +4%.", "تمت المناقلة.", "已调剂资金 —— 能力 +4%。") },
   ];
 
   return (
@@ -364,9 +354,9 @@ export function BudgetExecutionForecastPage({ store }) {
               </div>
               <div className="wb-ab-insight">
                 {tr({
-                  en: `Execution data is ready: ${UC17_BUDGET_ROWS.length} budget lines, ${formatSar(committed)} committed, ${formatSar(invoiced)} invoiced, ${formatSar(paid)} paid and ${formatSar(available)} available. Expected need ${amountB(annualNeed)}/yr vs ceiling ${amountB(forecastCeiling)}. ${needOverCeiling ? "Need exceeds ceiling — early warning." : "Need stays within ceiling."} Existing ${amountB(existing)}, potential ${amountB(potential)} @ ${softConversion}%. ${appliedCount ? `${appliedCount} response(s) applied, gap now ${amountB(fundingGap)}.` : "Response paths on the right."}`,
+                  en: `Execution data is ready: ${UC17_BUDGET_ROWS.length} budget lines, ${formatSar(committed)} committed, ${formatSar(invoiced)} invoiced, ${formatSar(paid)} paid and ${formatSar(available)} available. Expected need ${amountB(annualNeed)}/yr vs ceiling ${amountB(forecastCeiling)}. ${needOverCeiling ? "Need exceeds ceiling — early warning." : "Need stays within ceiling."} Existing ${amountB(existing)}, potential ${amountB(potential)} @ ${softConversion}%.`,
                   ar: `بيانات التنفيذ جاهزة. الحاجة المتوقعة ${amountB(annualNeed)} مقابل السقف ${amountB(forecastCeiling)}.`,
-                  zh: `执行数据已就绪：${UC17_BUDGET_ROWS.length} 条预算行、已承诺 ${formatSar(committed)}、收票 ${formatSar(invoiced)}、已付款 ${formatSar(paid)}、可用资金 ${formatSar(available)}。预期需求 ${amountB(annualNeed)}/年 vs 上限 ${amountB(forecastCeiling)}。${needOverCeiling ? "需求超上限 —— 提前预警。" : "需求在上限内。"}已有 ${amountB(existing)}、潜在(概率化) ${amountB(potential)} @ ${softConversion}%。${appliedCount ? `已应用 ${appliedCount} 项应对，当前缺口 ${amountB(fundingGap)}。` : "右侧为应对路径。"}`,
+                  zh: `执行数据已就绪：${UC17_BUDGET_ROWS.length} 条预算行、已承诺 ${formatSar(committed)}、收票 ${formatSar(invoiced)}、已付款 ${formatSar(paid)}、可用资金 ${formatSar(available)}。预期需求 ${amountB(annualNeed)}/年 vs 上限 ${amountB(forecastCeiling)}。${needOverCeiling ? "需求超上限 —— 提前预警。" : "需求在上限内。"}已有 ${amountB(existing)}、潜在(概率化) ${amountB(potential)} @ ${softConversion}%。`,
                 })}
               </div>
               <div className="sc-rec-review">⚑ {tr({ en: "Recommendations are pending approval; no commitment is created without human sign-off.", ar: "التوصيات بانتظار الاعتماد.", zh: "建议待审批；未经人工批准不产生承诺。" })}</div>
@@ -386,17 +376,6 @@ export function BudgetExecutionForecastPage({ store }) {
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="wb-ab-col">
-              <div className="wb-ab-h">⚐ {tr({ en: "PROACTIVE ACTIONS · apply", ar: "إجراءات استباقية", zh: "主动应对措施 · 点击应用" })} <span className="hs-find-hint">{tr({ en: "cumulative · pending approval", ar: "تراكمي · بانتظار الاعتماد", zh: "可叠加 · 待审批" })}</span></div>
-              <div className="wb-sugs hs-sugs">
-                {recommendations.map((recommendation, index) => (
-                  <button className="wb-sug" disabled={actions[recommendation.key]} key={recommendation.key} type="button" onClick={() => toggleAction(recommendation.key, recommendation.label)}>
-                    <span className="pr">{index + 1}</span><span className="wb-sug-tx"><b>{actions[recommendation.key] ? "✓ " + tr(recommendation.title) : tr(recommendation.title)}</b></span>
-                  </button>
-                ))}
-              </div>
-              {findMessage && findMessage.column === "R" && <div className="wb-ab-done">✓ {tr(findMessage.message)}</div>}
             </div>
           </div>
         </div>

@@ -19,15 +19,9 @@ export function BudgetExecutionLedger({
   rows,
   selectedId,
   setSelectedId,
+  aside,
 }) {
-  return (
-    <BudgetExecutionSection
-      tr={tr}
-      title={{ en: "Budget line ledger", ar: "دفتر بنود الميزانية", zh: "预算行列表" }}
-      sub={{ en: "Click a budget line to inspect its lifecycle stages in the side panel.", ar: "انقر على بند ميزانية لعرض مراحل دورة حياته في اللوحة الجانبية.", zh: "点击预算行后，在右侧同步展示采购申请、采购订单、合同、发票、转移、余额等阶段数据。" }}
-      agent={{ en: "Agent: SAP Movement Translation Agent", ar: "الوكيل: وكيل ترجمة حركات SAP", zh: "Agent：SAP Movement Translation Agent" }}
-      className="be17-ledger-section"
-    >
+  const ledgerTable = (
       <div className="be17-table-wrap">
         <table className="be17-table">
           <thead>
@@ -71,6 +65,24 @@ export function BudgetExecutionLedger({
           </tbody>
         </table>
       </div>
+  );
+  return (
+    <BudgetExecutionSection
+      tr={tr}
+      title={{ en: "Budget line ledger", ar: "دفتر بنود الميزانية", zh: "预算行列表" }}
+      sub={
+        aside
+          ? { en: "Click a budget line to inspect its lifecycle stages and ask the Copilot.", ar: "انقر على بند ميزانية لعرض مراحل دورة حياته وسؤال المساعد.", zh: "点击预算行，查看其生命周期阶段数据并向 Copilot 提问。" }
+          : { en: "Click a budget line to inspect its lifecycle stages in the side panel.", ar: "انقر على بند ميزانية لعرض مراحل دورة حياته في اللوحة الجانبية.", zh: "点击预算行后，在右侧同步展示采购申请、采购订单、合同、发票、转移、余额等阶段数据。" }
+      }
+      agent={{ en: "Agent: SAP Movement Translation Agent", ar: "الوكيل: وكيل ترجمة حركات SAP", zh: "Agent：SAP Movement Translation Agent" }}
+      className={aside ? "be17-ledger-section be17-merged" : "be17-ledger-section"}
+    >
+      {aside ? (
+        <div className="be17-merged-grid">{ledgerTable}{aside}</div>
+      ) : (
+        ledgerTable
+      )}
     </BudgetExecutionSection>
   );
 }

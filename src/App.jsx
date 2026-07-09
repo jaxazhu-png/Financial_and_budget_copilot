@@ -9,6 +9,7 @@ import { BudgetExecutionForecastPage } from "./features/budget-execution/pages/B
 import { BudgetExecutionMonitoringPage } from "./features/budget-execution/pages/BudgetExecutionMonitoringPage";
 import { BudgetExecutionReportPage } from "./features/budget-execution/pages/BudgetExecutionReportPage";
 import { BudgetExecutionResetPlaceholderPage } from "./features/budget-execution/pages/BudgetExecutionResetPlaceholderPage";
+import { BudgetExecutionStoryline } from "./features/budget-execution/components/BudgetExecutionStoryline";
 import "./group02/group02.css";
 
 /* =========================================================================
@@ -4154,11 +4155,11 @@ function Uc04Forecaster() {
             <div className="wb-kk"><span>{tr({ en: "Monthly ceiling", ar: "السقف الشهري", zh: "月度上限" })}</span><b>{fmt(CEIL * M)}</b></div>
             {over.length > 0 && <div style={{ marginTop: 8, padding: "8px 10px", borderRadius: 8, background: "#fdecea", color: "#b42318", fontSize: 12.5 }}>⚠ {tr({ en: "Early warning: need above ceiling in " + over.map(x => x[0]).join(", "), ar: "إنذار مبكر: الحاجة أعلى من السقف في " + over.map(x => x[0]).join("، "), zh: "早期预警:" + over.map(x => x[0]).join("、") + " 需求高于上限" })} · <a style={{ color: "#b42318", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }} onClick={() => { setAlertsOpen(true); pushLog({ en: "UC-02 alert raised from forecast pressure", ar: "أُنشئ تنبيه UC-02 من ضغط التنبؤ", zh: "已由预测压力创建 UC-02 告警" }); }}>{tr({ en: "raise UC-02 alert →", ar: "إنشاء تنبيه UC-02 ←", zh: "创建 UC-02 告警 →" })}</a></div>}
           </div></div>
-        <div className="wb-panel"><div className="wb-ph plain"><b>{tr({ en: "Proactive Actions", ar: "إجراءات استباقية", zh: "主动措施建议" })}</b><span className="wb-pm">{tr({ en: "no commitment without approval (BR-04)", ar: "لا التزام دون اعتماد (BR-04)", zh: "未经批准不产生承诺(BR-04)" })}</span></div>
+        {/* <div className="wb-panel"><div className="wb-ph plain"><b>{tr({ en: "Proactive Actions", ar: "إجراءات استباقية", zh: "主动措施建议" })}</b><span className="wb-pm">{tr({ en: "no commitment without approval (BR-04)", ar: "لا التزام دون اعتماد (BR-04)", zh: "未经批准不产生承诺(BR-04)" })}</span></div>
           <div className="wb-pb"><table className="wb-table"><thead><tr><th>{tr({ en: "PROPOSED ACTION", ar: "الإجراء المقترح", zh: "建议措施" })}</th><th>{tr({ en: "DECISION", ar: "القرار", zh: "决定" })}</th></tr></thead>
             <tbody>{RECS.map((r) => (<tr key={r.id}><td style={{ whiteSpace: "normal" }}>{tr(r.t)}</td><td>{recSt[r.id] === 1 ? <span className="chip">✓ {tr({ en: "approved", ar: "معتمد", zh: "已批准" })}</span> : recSt[r.id] === 2 ? <span className="wb-risk med">↺ {tr({ en: "returned", ar: "أُعيد", zh: "已退回" })}</span> : <span style={{ whiteSpace: "nowrap" }}><button className="btn sm" onClick={() => act(r.id, true)}>✓ {tr({ en: "Approve", ar: "اعتماد", zh: "批准" })}</button> <button className="btn ghost sm" onClick={() => act(r.id, false)}>↺ {tr({ en: "Return", ar: "إعادة", zh: "退回" })}</button></span>}</td></tr>))}</tbody></table>
           <div className="wb-kk" style={{ marginTop: 8 }}><span>{tr({ en: "Forecast vs actual (backtest)", ar: "المتوقع مقابل الفعلي", zh: "预测 vs 实际(回测)" })}</span><b className="up">94% · 4Q ↑</b></div>
-        </div></div>
+        </div></div> */}
       </div>}
     </div>
   </div>);
@@ -6215,7 +6216,6 @@ const UF_SOURCES = [
   { n: "Efaa (fines)", st: "synced", sync: "8m", rec: "244K", dom: ufT("Enforcement · penalties", "التنفيذ · الغرامات", "执法 · 罚款") },
   { n: "Makin", st: "synced", sync: "6m", rec: "512K", dom: ufT("Revenue invoices", "فواتير الإيراد", "收入发票") },
   { n: "Tahseel", st: "stale", sync: "3h", rec: "96K", dom: ufT("Revenue · collection", "الإيراد · التحصيل", "收入 · 征收") },
-  { n: "Hyperion / MTFP", st: "stale", sync: "5h", rec: "41K", dom: ufT("Budget submission", "تقديم الميزانية", "预算提交") },
   { n: "Jeem / Ba", st: "synced", sync: "12m", rec: "88K", dom: ufT("Assets register", "سجل الأصول", "资产台账") },
   { n: "Excel / CSV", st: "temp", sync: "manual", rec: "—", dom: ufT("Legacy pivots (BR-04)", "جداول قديمة (BR-04)", "历史透视(BR-04)") },
 ];
@@ -6301,7 +6301,7 @@ function SharedFoundationWorkbench() {
     <div className="card pad wb-head">
       <div><div className="wb-title"><button className="pg-back" onClick={back}>‹</button><span className="wb-dot violet" /> {tr(cfg.subt)}</div>
         <div className="wb-subt">{tr({ en: "One trusted, traceable data foundation — unifies multi-source heterogeneous data into a standardized financial data model", ar: "أساس بيانات موحّد وموثوق وقابل للتتبع — يوحّد البيانات متعددة المصادر وغير المتجانسة في نموذج بيانات مالي معياري", zh: "统一、可信、可追溯的数据底座 —— 将多源异构数据统一为标准化财务数据模型" })}</div></div>
-      <div className="bp-wrap-story"><G02BusinessStoryline tr={tr} current="data" navigate={goStory} /></div>
+      <div className="bp-wrap-story"><BudgetExecutionStoryline tr={tr} current="data" onNavigate={(r) => { if (r === "budexec-data") return; goStory(r); }} /></div>
     </div>
 
     <div className="uf-scopebar"><span className="uf-scope-l">{tr({ en: "DATA SCOPE", ar: "نطاق البيانات", zh: "数据范围" })}</span>

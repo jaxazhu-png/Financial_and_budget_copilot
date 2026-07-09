@@ -27,11 +27,16 @@ export function BudgetExecutionSidePanel({
   setCustomQuestion,
   askCustomQuestion,
   qaAnswer,
+  frameless = false,
 }) {
   const selectedQuestion = QUESTIONS.find((question) => question.id === questionId) || QUESTIONS[0];
+  const Wrapper = frameless ? "div" : "aside";
+  const wrapperProps = frameless
+    ? { className: "be17-side-inner" }
+    : { className: "be17-side-card", "aria-label": tr({ en: "Budget execution Copilot", ar: "مساعد تنفيذ الميزانية", zh: "预算执行 Copilot" }) };
 
   return (
-    <aside className="be17-side-card" aria-label={tr({ en: "Budget execution Copilot", ar: "مساعد تنفيذ الميزانية", zh: "预算执行 Copilot" })}>
+    <Wrapper {...wrapperProps}>
       <div className="be17-side-head">
         <div>
           <span>{tr({ en: "Selected budget line", ar: "بند الميزانية المختار", zh: "已选预算行" })}</span>
@@ -106,6 +111,6 @@ export function BudgetExecutionSidePanel({
           </div>
         </div>
       </div>
-    </aside>
+    </Wrapper>
   );
 }

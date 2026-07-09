@@ -62,23 +62,15 @@ export function BudgetExecutionAnalysisResults({ tr, rows, dimension, selectedId
 /**
  * Bottom approval action for the reviewed monitoring package.
  */
-export function BudgetExecutionApprovalDock({ tr, state, onSubmit, onSaveDraft, onExportPlan }) {
+export function BudgetExecutionApprovalDock({ tr, onSubmit, onSaveDraft }) {
   return (
     <div className="be17-approval-dock">
-      <div className={`be17-approval-warning ${state}`}>
-        ⚠ {tr(state === "planned"
-          ? { en: "Funding-gap allocation plan has been drafted. Submit again after confirming surplus-fund allocation.", ar: "تم إعداد خطة سد الفجوة. أعد الإرسال بعد التأكيد.", zh: "缺口拨付计划已生成。请确认盈余资金拨付后再提交。" }
-          : { en: "Funding gap exists — submission is blocked. Allocate the gap from surplus funds in batch, then submit again.", ar: "توجد فجوة تمويل — تم منع الإرسال. خصص الفجوة من الفائض ثم أعد الإرسال.", zh: "存在资金缺口——提交被阻止。请先从盈余资金中拨付缺口（批量拨付），然后再提交。" })}
-      </div>
       <div className="be17-approval-actions">
         <button className="btn" type="button" onClick={onSubmit}>
           {tr({ en: "Submit for approval", ar: "إرسال للاعتماد", zh: "提交审批" })}
         </button>
         <button className="btn secondary" type="button" onClick={onSaveDraft}>
           {tr({ en: "Save draft", ar: "حفظ المسودة", zh: "保存草稿" })}
-        </button>
-        <button className="btn ghost" type="button" onClick={onExportPlan}>
-          {tr({ en: "Gap allocation plan", ar: "خطة سد الفجوة", zh: "出口计划" })}
         </button>
       </div>
     </div>

@@ -33,10 +33,8 @@ export function BudgetExecutionMonitoringPage({ store }) {
     qaAnswer,
     analysisRows,
     selectedDimension,
-    approvalState,
     submitApproval,
     saveDraft,
-    exportPlan,
     openRoute,
   } = useBudgetExecutionMonitoring(store);
   const riskCount = rows.filter((row) => row.status === "risk").length;
@@ -48,8 +46,8 @@ export function BudgetExecutionMonitoringPage({ store }) {
 
   return (
     <div className="page g03-page be17-page wb">
-      <div className="card pad wb-head be17-head">
-        <div className="be17-head-copy">
+      <div className="card pad wb-head">
+        <div>
           <div className="wb-title">
             <button className="pg-back" type="button" onClick={() => openRoute("buwork", "Back to Budget Execution Department workspace")}>‹</button>
             <span className="wb-dot green" />
@@ -70,7 +68,7 @@ export function BudgetExecutionMonitoringPage({ store }) {
             })}
           </div>
         </div>
-        <div className="bp-wrap-story be17-wrap-story">
+        <div className="bp-wrap-story">
           <BudgetExecutionStoryline tr={tr} current="ledger" onNavigate={openStoryRoute} />
         </div>
       </div>
@@ -94,24 +92,25 @@ export function BudgetExecutionMonitoringPage({ store }) {
         dimensions={dimensions}
       />
 
-      <div className="be17-main-grid">
-        <BudgetExecutionLedger
-          tr={tr}
-          rows={rows}
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-        />
-        <BudgetExecutionSidePanel
-          tr={tr}
-          selectedRow={selectedRow}
-          questionId={questionId}
-          setQuestionId={setQuestionId}
-          customQuestion={customQuestion}
-          setCustomQuestion={setCustomQuestion}
-          askCustomQuestion={askCustomQuestion}
-          qaAnswer={qaAnswer}
-        />
-      </div>
+      <BudgetExecutionLedger
+        tr={tr}
+        rows={rows}
+        selectedId={selectedId}
+        setSelectedId={setSelectedId}
+        aside={
+          <BudgetExecutionSidePanel
+            tr={tr}
+            selectedRow={selectedRow}
+            questionId={questionId}
+            setQuestionId={setQuestionId}
+            customQuestion={customQuestion}
+            setCustomQuestion={setCustomQuestion}
+            askCustomQuestion={askCustomQuestion}
+            qaAnswer={qaAnswer}
+            frameless
+          />
+        }
+      />
 
       <BudgetExecutionAnalysisResults
         tr={tr}
@@ -121,7 +120,7 @@ export function BudgetExecutionMonitoringPage({ store }) {
         onSelectRow={setSelectedId}
       />
 
-      <BudgetExecutionApprovalDock tr={tr} state={approvalState} onSubmit={submitApproval} onSaveDraft={saveDraft} onExportPlan={exportPlan} />
+      <BudgetExecutionApprovalDock tr={tr} onSubmit={submitApproval} onSaveDraft={saveDraft} />
       <BudgetExecutionSmartQuery tr={tr} pushLog={store.pushLog} page="uc17" selectedRow={selectedRow} />
     </div>
   );
